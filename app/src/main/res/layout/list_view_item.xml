@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_item_wrapper"
+    android:padding="@dimen/dimen_normal"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="horizontal">
+
+
+    <ImageView
+        android:id="@+id/image_view_thumbnail"
+        android:scaleType="centerCrop"
+        android:src="@drawable/sondre_lerche"
+        android:layout_width="@dimen/dimen_thumbnail"
+        android:layout_height="@dimen/dimen_thumbnail"/>
+
+
+    <TextView
+        android:id="@+id/text_view_item"
+        android:paddingLeft="@dimen/dimen_normal"
+        android:layout_gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </TextView>
+
+
+</LinearLayout>
+
+
