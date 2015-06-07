@@ -80,6 +80,13 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
         notifyDataSetChanged();
     }
 
+
+    @Override
+    public void clear() {
+        super.clear();
+        mArtists.clear();
+    }
+
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
         private ImageView mImageView;

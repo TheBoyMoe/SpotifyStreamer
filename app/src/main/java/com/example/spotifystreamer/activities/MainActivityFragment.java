@@ -13,10 +13,10 @@ import android.widget.ListView;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Artist;
-import com.example.spotifystreamer.model.ArtistManager;
 import com.example.spotifystreamer.utils.ArtistsArrayAdapter;
 import com.example.spotifystreamer.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -27,8 +27,6 @@ public class MainActivityFragment extends Fragment {
 
     private static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
-    private List<String> mList;
-    //private ArrayAdapter<String> mAdapter; // basic adapter
     private ListView mListView;
     private EditText mEditText;
     private ImageButton mButton;
@@ -38,6 +36,13 @@ public class MainActivityFragment extends Fragment {
     public MainActivityFragment() {
     }
 
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mArtists = new ArrayList<>();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -68,35 +73,8 @@ public class MainActivityFragment extends Fragment {
         });
 
         // instantiate the ArrayAdapter and bind it to the ListView
-        mArtistsAdapter = new ArtistsArrayAdapter(
-                getActivity(),
-                ArtistManager.getArtistManager().getList());
-
+        mArtistsAdapter = new ArtistsArrayAdapter(getActivity(), mArtists);
         mListView.setAdapter(mArtistsAdapter);
-
-
-        // fake data - test listview
-//        String[] dataArray = {
-//            "Sondre Lerche - Faces Down 2002",
-//            "Frank Sinatra - 20 Golden Greats 1999",
-//            "Prince - Diamonds and Pearls 1992",
-//            "Led Zeppelin - Houses of the Holy 1974",
-//            "Rolling Stones - 40 Licks 2006",
-//            "Neil Diamond -  Home Before Dark 2013"
-//        };
-//
-//        // convert the array into an array list
-//        mList = new ArrayList<>(Arrays.asList(dataArray));
-//
-//        // populate the listview & bind it to the ListView - using basic adapter
-//        mAdapter = new ArrayAdapter<>(
-//                getActivity(),
-//                R.layout.list_view_item,
-//                R.id.text_view_item,
-//                mList
-//        );
-//
-//        mListView.setAdapter(mAdapter);
 
         return view;
     }
@@ -129,6 +107,8 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(List<Artist> artists) {
+
+            mArtistsAdapter.clear();
 
             // search returns an empty array
             if(artists.size() == 0) {

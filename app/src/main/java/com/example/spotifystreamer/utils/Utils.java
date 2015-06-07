@@ -7,7 +7,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.spotifystreamer.model.Artist;
-import com.example.spotifystreamer.model.ArtistManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +18,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
@@ -107,8 +107,10 @@ public class Utils {
     // parse the json results string
     public static List<Artist> parseJSONSearchResults(String jsonResults) {
 
-        ArtistManager artistManager = ArtistManager.getArtistManager();
-        artistManager.clear(); // clear the manager obj between downloads
+        List<Artist> artistList = new ArrayList<>();
+
+        //ArtistManager artistManager = ArtistManager.getArtistManager();
+        //artistManager.clear(); // clear the manager obj between downloads
 
         // retrieve the following JSON values
         final String TOTAL_OBJECT = "total"; // total number of records returned
@@ -167,7 +169,8 @@ public class Utils {
 
                     // instantiate an artist pojo and add it to the manager
                     Artist artistPojo = new Artist(id, name, url, width, height);
-                    artistManager.addArtist(artistPojo);
+                    //artistManager.addArtist(artistPojo);
+                    artistList.add(artistPojo);
 
                 }
             } else {
@@ -178,7 +181,7 @@ public class Utils {
             Log.e(LOG_TAG, "Failure parsing the JSON data: " + e.getMessage());
         }
 
-        return artistManager.getList();
+        return artistList;
     }
 
 
