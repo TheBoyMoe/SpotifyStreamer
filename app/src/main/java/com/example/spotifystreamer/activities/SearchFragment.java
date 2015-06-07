@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -23,9 +24,9 @@ import java.util.List;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment {
+public class SearchFragment extends Fragment {
 
-    private static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
+    private static final String LOG_TAG = SearchFragment.class.getSimpleName();
 
     private ListView mListView;
     private EditText mEditText;
@@ -33,7 +34,7 @@ public class MainActivityFragment extends Fragment {
     private ArtistsArrayAdapter mArtistsAdapter;
     private List<Artist> mArtists;
 
-    public MainActivityFragment() {
+    public SearchFragment() {
     }
 
 
@@ -46,7 +47,7 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
 
         // get references to view elements of interest
         mEditText = (EditText) view.findViewById(R.id.edit_text_search_query);
@@ -54,7 +55,7 @@ public class MainActivityFragment extends Fragment {
         mListView = (ListView) view.findViewById(R.id.list_view_item_container);
 
 
-        // setOnClickListener, retrieve the Artist query and execute the search
+        // setOnClickListener on search button - retrieve the Artist query and execute the search
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,6 +72,16 @@ public class MainActivityFragment extends Fragment {
 
             }
         });
+
+
+        // register item click listener
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Utils.showToast(getActivity(), "You clicked on item " + position);
+            }
+        });
+
 
         // instantiate the ArrayAdapter and bind it to the ListView
         mArtistsAdapter = new ArtistsArrayAdapter(getActivity(), mArtists);
