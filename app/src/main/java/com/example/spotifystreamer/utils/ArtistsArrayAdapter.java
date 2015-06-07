@@ -26,9 +26,12 @@ import java.util.List;
 public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
 
     private static final String LOG_TAG = ArtistsArrayAdapter.class.getSimpleName();
+    private List<Artist> mArtists;
+
 
     public ArtistsArrayAdapter(Context context, List<Artist> artists) {
         super(context, 0, artists);
+        mArtists = artists;
     }
 
 
@@ -41,7 +44,8 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
 
         // inflate a new view if there isn't one available to be recycled
         if(convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.list_view_item, parent, false);
+            convertView = LayoutInflater.from(getContext())
+                    .inflate(R.layout.list_view_item, parent, false);
         }
 
         // cache the view's elements
@@ -52,8 +56,6 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
         String url = artist.getUrl();
         if(url != null && !(url.equals("no image found")))
             new DownloadImageTask(iv).execute(url);
-        // TODO
-
 
         // set the artist name on the text view
         tv.setText(artist.getName());
@@ -61,6 +63,22 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
         return convertView;
     }
 
+
+    @Override
+    public Artist getItem(int position) {
+        return (mArtists != null? mArtists.get(position) : null);
+    }
+
+    @Override
+    public int getCount() {
+        return (mArtists != null? mArtists.size() : 0);
+    }
+
+
+    public void updateView(List<Artist> list) {
+        mArtists = list;
+        notifyDataSetChanged();
+    }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
@@ -111,8 +129,6 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
         protected void onPostExecute(Bitmap bitmap) {
             if(bitmap != null)
                 mImageView.setImageBitmap(bitmap);
-            // TODO
-            // else
         }
 
     }

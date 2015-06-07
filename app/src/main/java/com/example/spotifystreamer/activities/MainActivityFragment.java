@@ -7,18 +7,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Artist;
+import com.example.spotifystreamer.model.ArtistManager;
 import com.example.spotifystreamer.utils.ArtistsArrayAdapter;
 import com.example.spotifystreamer.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -30,11 +28,12 @@ public class MainActivityFragment extends Fragment {
     private static final String LOG_TAG = MainActivityFragment.class.getSimpleName();
 
     private List<String> mList;
-    private ArrayAdapter<String> mAdapter; // basic adapter
+    //private ArrayAdapter<String> mAdapter; // basic adapter
     private ListView mListView;
     private EditText mEditText;
     private ImageButton mButton;
-
+    private ArtistsArrayAdapter mArtistsAdapter;
+    private List<Artist> mArtists;
 
     public MainActivityFragment() {
     }
@@ -56,35 +55,48 @@ public class MainActivityFragment extends Fragment {
             public void onClick(View view) {
                 String artistQuery = mEditText.getText().toString();
 
-                // instantiate and invoke the AsyncTask to download the search results
-                SearchQueryTask queryTask = new SearchQueryTask();
-                queryTask.execute(artistQuery);
+                if(artistQuery.equals("")) {
+                    Log.d(LOG_TAG, "No query submitted");
+                    Utils.showToast(getActivity(), "Enter search term(s)");
+                } else {
+                    // instantiate and invoke the AsyncTask to download the search results
+                    SearchQueryTask queryTask = new SearchQueryTask();
+                    queryTask.execute(artistQuery);
+                }
 
             }
         });
 
-        // fake data - test listview
-        String[] dataArray = {
-            "Sondre Lerche - Faces Down 2002",
-            "Frank Sinatra - 20 Golden Greats 1999",
-            "Prince - Diamonds and Pearls 1992",
-            "Led Zeppelin - Houses of the Holy 1974",
-            "Rolling Stones - 40 Licks 2006",
-            "Neil Diamond -  Home Before Dark 2013"
-        };
-
-        // convert the array into an array list
-        mList = new ArrayList<>(Arrays.asList(dataArray));
-
-        // populate the listview & bind it to the ListView - using basic adapter
-        mAdapter = new ArrayAdapter<>(
+        // instantiate the ArrayAdapter and bind it to the ListView
+        mArtistsAdapter = new ArtistsArrayAdapter(
                 getActivity(),
-                R.layout.list_view_item,
-                R.id.text_view_item,
-                mList
-        );
+                ArtistManager.getArtistManager().getList());
 
-        mListView.setAdapter(mAdapter);
+        mListView.setAdapter(mArtistsAdapter);
+
+
+        // fake data - test listview
+//        String[] dataArray = {
+//            "Sondre Lerche - Faces Down 2002",
+//            "Frank Sinatra - 20 Golden Greats 1999",
+//            "Prince - Diamonds and Pearls 1992",
+//            "Led Zeppelin - Houses of the Holy 1974",
+//            "Rolling Stones - 40 Licks 2006",
+//            "Neil Diamond -  Home Before Dark 2013"
+//        };
+//
+//        // convert the array into an array list
+//        mList = new ArrayList<>(Arrays.asList(dataArray));
+//
+//        // populate the listview & bind it to the ListView - using basic adapter
+//        mAdapter = new ArrayAdapter<>(
+//                getActivity(),
+//                R.layout.list_view_item,
+//                R.id.text_view_item,
+//                mList
+//        );
+//
+//        mListView.setAdapter(mAdapter);
 
         return view;
     }
@@ -97,51 +109,44 @@ public class MainActivityFragment extends Fragment {
         @Override
         protected List<Artist> doInBackground(String... params) {
 
-            if(params.length == 0 || params[0].equals("")) {
-                Log.d(LOG_TAG, "No query submitted");
+           List<Artist> artists = null;
+
+            if(params.length == 0) {
                 return null;
             }
 
             // execute the Artist query & download the results
             String jsonStringResult = Utils.downloadJSONSearchResults(params[0]);
 
-            List<Artist> artists = null;
-
             // parse the downloaded Json
             if (jsonStringResult != null)
                 artists = Utils.parseJSONSearchResults(jsonStringResult);
 
             return artists;
+
         }
 
 
         @Override
         protected void onPostExecute(List<Artist> artists) {
 
-            if(artists != null) {
-
-//                mAdapter.clear(); // clear the adapter of all the previous entries
-//                for (Artist artist : artists) {
-//                    Log.d(LOG_TAG, artist.toString() + " : " + artist.getUrl());
-//
-//                    // re-populate the adapter - automatically calls notifyDatasetChanged()
-//                    mAdapter.add(artist.toString());
-//                }
-
-                ArtistsArrayAdapter artistAdapter = new ArtistsArrayAdapter(getActivity(), artists);
-                mListView.setAdapter(artistAdapter);
-
-
-            } else {
-                Utils.showToast(getActivity(), "Error executing search");
+            // search returns an empty array
+            if(artists.size() == 0) {
+                Utils.showToast(getActivity(), "No results found");
+                return;
             }
 
+            if(artists != null) {
+                // pass the results to the array adapter and update the view
+                // notifyDataSetChanged() called
+                mArtistsAdapter.updateView(artists);
+                return;
+            } else {
+                Utils.showToast(getActivity(), "Network error");
+            }
 
         }
     }
-
-
-
 
 
 }

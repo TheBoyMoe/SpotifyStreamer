@@ -111,6 +111,7 @@ public class Utils {
         artistManager.clear(); // clear the manager obj between downloads
 
         // retrieve the following JSON values
+        final String TOTAL_OBJECT = "total"; // total number of records returned
         final String ARTISTS_OBJECT = "artists";
         final String ITEMS_ARRAY = "items";
         final String ARTIST_ID_ATTRIBUTE = "id";
@@ -122,43 +123,55 @@ public class Utils {
 
 
         String id, name, url;
-        int width, height;
+        int width, height, total;
 
         try {
             JSONObject jsonObject = new JSONObject(jsonResults);
             JSONObject artistsObject = jsonObject.getJSONObject(ARTISTS_OBJECT);
-            JSONArray artists = artistsObject.getJSONArray(ITEMS_ARRAY);
 
-            // iterate through the array of artist JSON objects
-            for (int i = 0; i < artists.length(); i++) {
-                JSONObject artist = artists.getJSONObject(i);
-                id = artist.getString(ARTIST_ID_ATTRIBUTE);
-                name = artist.getString(ARTIST_NAME_ATTRIBUTE);
+            // check that results are actually returned
+            total = artistsObject.getInt(TOTAL_OBJECT);
 
-                // retrieve the image data
-                JSONArray images = artist.getJSONArray(IMAGES_ARRAY);
-                JSONObject image = null;
+            if(total > 0) {
+                if(L) Log.i(LOG_TAG, "Total number of records returned: " + total);
 
-                if(images != null && images.length() > 0) {
-                    if(images.length() == 1) {
-                        image = images.getJSONObject(0);
-                    } else if(images.length() >= 2) {
-                        image = images.getJSONObject(images.length() - 2);
+                JSONArray artists = artistsObject.getJSONArray(ITEMS_ARRAY);
+
+                // iterate through the array of artist JSON objects
+                for (int i = 0; i < artists.length(); i++) {
+                    JSONObject artist = artists.getJSONObject(i);
+                    id = artist.getString(ARTIST_ID_ATTRIBUTE);
+                    name = artist.getString(ARTIST_NAME_ATTRIBUTE);
+
+                    // retrieve the image data
+                    JSONArray images = artist.getJSONArray(IMAGES_ARRAY);
+                    JSONObject image = null;
+
+                    if(images != null && images.length() > 0) {
+                        if(images.length() == 1) {
+                            image = images.getJSONObject(0);
+                        } else if(images.length() >= 2) {
+                            image = images.getJSONObject(images.length() - 2);
+                        }
+                        url = image.getString(THUMBNAIL_URL_ATTRIBUTE);
+                        //width = Integer.valueOf(image.getString(IMAGE_WIDTH_ATTRIBUTE));
+                        //height = Integer.valueOf(image.getString(IMAGE_HEIGHT_ATTRIBUTE));
+                        width = image.getInt(IMAGE_WIDTH_ATTRIBUTE);
+                        height = image.getInt(IMAGE_HEIGHT_ATTRIBUTE);
+                    } else {
+                        // set an empty string for the image path, substituted for a placeholder later in the code
+                        url = "no image found";
+                        width = 0;
+                        height = 0;
                     }
-                    url = image.getString(THUMBNAIL_URL_ATTRIBUTE);
-                    width = Integer.valueOf(image.getString(IMAGE_WIDTH_ATTRIBUTE));
-                    height = Integer.valueOf(image.getString(IMAGE_HEIGHT_ATTRIBUTE));
-                } else {
-                    // set an empty string for the image path, substituted for a placeholder later in the code
-                    url = "no image found";
-                    width = 0;
-                    height = 0;
+
+                    // instantiate an artist pojo and add it to the manager
+                    Artist artistPojo = new Artist(id, name, url, width, height);
+                    artistManager.addArtist(artistPojo);
+
                 }
-
-                // instantiate an artist pojo and add it to the manager
-                Artist artistPojo = new Artist(id, name, url, width, height);
-                artistManager.addArtist(artistPojo);
-
+            } else {
+                Log.d(LOG_TAG, "No results found for search term");
             }
 
         } catch (JSONException e) {
