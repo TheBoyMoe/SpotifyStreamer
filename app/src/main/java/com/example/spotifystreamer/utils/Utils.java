@@ -109,9 +109,6 @@ public class Utils {
 
         List<Artist> artistList = new ArrayList<>();
 
-        //ArtistManager artistManager = ArtistManager.getArtistManager();
-        //artistManager.clear(); // clear the manager obj between downloads
-
         // retrieve the following JSON values
         final String TOTAL_OBJECT = "total"; // total number of records returned
         final String ARTISTS_OBJECT = "artists";
@@ -156,8 +153,6 @@ public class Utils {
                             image = images.getJSONObject(images.length() - 2);
                         }
                         url = image.getString(THUMBNAIL_URL_ATTRIBUTE);
-                        //width = Integer.valueOf(image.getString(IMAGE_WIDTH_ATTRIBUTE));
-                        //height = Integer.valueOf(image.getString(IMAGE_HEIGHT_ATTRIBUTE));
                         width = image.getInt(IMAGE_WIDTH_ATTRIBUTE);
                         height = image.getInt(IMAGE_HEIGHT_ATTRIBUTE);
                     } else {
@@ -169,7 +164,6 @@ public class Utils {
 
                     // instantiate an artist pojo and add it to the manager
                     Artist artistPojo = new Artist(id, name, url, width, height);
-                    //artistManager.addArtist(artistPojo);
                     artistList.add(artistPojo);
 
                 }

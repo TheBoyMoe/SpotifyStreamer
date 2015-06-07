@@ -34,7 +34,7 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
         mArtists = artists;
     }
 
-
+    // build each list view item
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
@@ -56,6 +56,8 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
         String url = artist.getUrl();
         if(url != null && !(url.equals("no image found")))
             new DownloadImageTask(iv).execute(url);
+        else
+            iv.setImageResource(R.drawable.placeholder);
 
         // set the artist name on the text view
         tv.setText(artist.getName());
@@ -87,6 +89,8 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
         mArtists.clear();
     }
 
+
+    // AsyncTask responsible for downloading Image Thumbnails
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 
         private ImageView mImageView;
@@ -103,7 +107,7 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
             // establish the connection and download the stream
             try {
                 // declare the url and open the connection
-                Log.d(LOG_TAG, "Url: " + addresses[0]);
+                // Log.d(LOG_TAG, "Url: " + addresses[0]);
                 URL url = new URL(addresses[0]);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
