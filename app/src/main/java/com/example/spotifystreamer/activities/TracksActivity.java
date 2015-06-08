@@ -1,14 +1,13 @@
 package com.example.spotifystreamer.activities;
 
+import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.spotifystreamer.R;
 
-
-public class SearchActivity extends AppCompatActivity {
+public class TracksActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,7 +16,7 @@ public class SearchActivity extends AppCompatActivity {
 
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new SearchFragment())
+                    .add(R.id.container, new TracksFragment())
                     .commit();
         }
 
@@ -37,7 +36,9 @@ public class SearchActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
+
+
+
 }

@@ -20,13 +20,6 @@
             android:layout_height="wrap_content"
             android:hint="enter search term(s)"/>
 
-        <!--
-        <Button
-            android:id="@+id/button_launch_query"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Go"/>
-        -->
 
         <ImageButton
             android:id="@+id/button_launch_query"
@@ -38,7 +31,7 @@
 
 
     <ListView
-        android:id="@+id/list_view_item_container"
+        android:id="@+id/list_view_item__artist_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

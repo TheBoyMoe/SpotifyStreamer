@@ -1,5 +1,6 @@
 package com.example.spotifystreamer.activities;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -24,9 +25,13 @@ import java.util.List;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class SearchFragment extends Fragment {
+public class ArtistsFragment extends Fragment {
 
-    private static final String LOG_TAG = SearchFragment.class.getSimpleName();
+    private static final String LOG_TAG = ArtistsFragment.class.getSimpleName();
+    private final boolean L = true;
+
+    private final String EXTRA_ARTIST_ID = "artist id";
+    private final String EXTRA_ARTIST_NAME = "artist_name";
 
     private ListView mListView;
     private EditText mEditText;
@@ -34,7 +39,7 @@ public class SearchFragment extends Fragment {
     private ArtistsArrayAdapter mArtistsAdapter;
     private List<Artist> mArtists;
 
-    public SearchFragment() {
+    public ArtistsFragment() {
     }
 
 
@@ -47,12 +52,12 @@ public class SearchFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_search, container, false);
+        View view = inflater.inflate(R.layout.fragment_artists, container, false);
 
         // get references to view elements of interest
         mEditText = (EditText) view.findViewById(R.id.edit_text_search_query);
         mButton = (ImageButton) view.findViewById(R.id.button_launch_query);
-        mListView = (ListView) view.findViewById(R.id.list_view_item_container);
+        mListView = (ListView) view.findViewById(R.id.list_view_item__artist_container);
 
 
         // setOnClickListener on search button - retrieve the Artist query and execute the search
@@ -78,7 +83,16 @@ public class SearchFragment extends Fragment {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Utils.showToast(getActivity(), "You clicked on item " + position);
+
+                // retrieve id & name of the particular artist & add as an extra to the intent
+                Artist artist = mArtistsAdapter.getItem(position);
+                String artistName = artist.getName();
+                String artistId = artist.getId();
+
+                Intent intent = new Intent(getActivity(), TracksActivity.class);
+                intent.putExtra(EXTRA_ARTIST_NAME, artistName);
+                intent.putExtra(EXTRA_ARTIST_ID, artistId);
+                startActivity(intent);
             }
         });
 
@@ -131,7 +145,6 @@ public class SearchFragment extends Fragment {
                 // pass the results to the array adapter and update the view
                 // notifyDataSetChanged() called
                 mArtistsAdapter.updateView(artists);
-                return;
             } else {
                 Utils.showToast(getActivity(), "Network error");
             }

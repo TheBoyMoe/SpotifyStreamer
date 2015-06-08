@@ -8,7 +8,7 @@
 
 
     <ImageView
-        android:id="@+id/image_view_thumbnail"
+        android:id="@+id/image_view_artist_thumbnail"
         android:scaleType="centerCrop"
         android:src="@drawable/placeholder"
         android:layout_width="@dimen/dimen_thumbnail"
@@ -16,7 +16,7 @@
 
 
     <TextView
-        android:id="@+id/text_view_item"
+        android:id="@+id/text_view_artist_name"
         android:paddingLeft="@dimen/dimen_normal"
         android:layout_gravity="center_vertical"
         android:layout_width="match_parent"

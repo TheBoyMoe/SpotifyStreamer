@@ -11,66 +11,68 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.spotifystreamer.R;
-import com.example.spotifystreamer.model.Artist;
+import com.example.spotifystreamer.model.Track;
 
 import java.util.List;
 
-public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
+public class TracksArrayAdapter extends ArrayAdapter<Track>{
 
-    private static final String LOG_TAG = ArtistsArrayAdapter.class.getSimpleName();
-    private List<Artist> mArtists;
+    private static final String LOG_TAG = TracksArrayAdapter.class.getSimpleName();
+    private List<Track> mList;
 
-
-    public ArtistsArrayAdapter(Context context, List<Artist> artists) {
-        super(context, 0, artists);
-        mArtists = artists;
+    public TracksArrayAdapter(Context context, List<Track> tracks) {
+        super(context, 0, tracks);
+        mList = tracks;
     }
 
-    // build each list view item
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-
         // retrieve the artist object for this position
-        Artist artist = getItem(position);
-        Log.i(LOG_TAG, artist.toString());
+        Track track = getItem(position);
+        Log.i(LOG_TAG, track.toString());
 
         // inflate a new view if there isn't one available to be recycled
         if(convertView == null) {
             convertView = LayoutInflater.from(getContext())
-                    .inflate(R.layout.list_view_item_artist, parent, false);
+                    .inflate(R.layout.list_view_item_track, parent, false);
         }
 
         // cache the view's elements
-        ImageView iv = (ImageView) convertView.findViewById(R.id.image_view_artist_thumbnail);
-        TextView tv = (TextView) convertView.findViewById(R.id.text_view_artist_name);
+        ImageView iv = (ImageView) convertView.findViewById(R.id.image_view_track_thumbnail);
+        TextView ttv = (TextView) convertView.findViewById(R.id.text_view_track_title);
+        TextView atv = (TextView) convertView.findViewById(R.id.text_view_album_title);
 
         // download and display the thumbnail image
-        String url = artist.getUrl();
+        String url = track.getThumbnailUrl();
+
         if(url != null && !(url.equals("no image found")))
             new Utils.DownloadImageTask(iv, url).execute();
         else
             iv.setImageResource(R.drawable.placeholder);
 
         // set the artist name on the text view
-        tv.setText(artist.getName());
+        ttv.setText(track.getTrackTitle());
+        atv.setText(track.getAlbumTitle());
 
         return convertView;
     }
 
 
     @Override
-    public Artist getItem(int position) {
-        return (mArtists != null? mArtists.get(position) : null);
+    public Track getItem(int position) {
+        return (mList != null? mList.get(position) : null);
     }
+
 
     @Override
     public int getCount() {
-        return (mArtists != null? mArtists.size() : 0);
+        return (mList != null? mList.size() : 0);
     }
 
 
-    public void updateView(List<Artist> list) {
-        mArtists = list;
+    public void updateView(List<Track> list) {
+        mList = list;
         notifyDataSetChanged();
     }
 
@@ -78,7 +80,7 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
     @Override
     public void clear() {
         super.clear();
-        mArtists.clear();
+        mList.clear();
     }
 
 
