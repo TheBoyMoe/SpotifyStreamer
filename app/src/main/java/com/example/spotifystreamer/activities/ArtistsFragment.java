@@ -15,7 +15,7 @@ import android.widget.ListView;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Artist;
-import com.example.spotifystreamer.utils.ArtistsArrayAdapter;
+import com.example.spotifystreamer.view.ArtistsArrayAdapter;
 import com.example.spotifystreamer.utils.Utils;
 
 import java.util.ArrayList;
@@ -135,16 +135,19 @@ public class ArtistsFragment extends Fragment {
 
             mArtistsAdapter.clear();
 
-            // search returns an empty array
-            if(artists.size() == 0) {
-                Utils.showToast(getActivity(), "No results found");
-                return;
-            }
-
             if(artists != null) {
-                // pass the results to the array adapter and update the view
-                // notifyDataSetChanged() called
-                mArtistsAdapter.updateView(artists);
+
+                // search returns an empty array
+                if(artists.size() == 0) {
+                    Utils.showToast(getActivity(), "No results found");
+
+                } else {
+                    // pass the results to the array adapter and update the view
+                    // notifyDataSetChanged() called
+                    mArtistsAdapter.updateView(artists);
+
+                }
+
             } else {
                 Utils.showToast(getActivity(), "Network error");
             }

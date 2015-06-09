@@ -8,18 +8,15 @@ public class Artist {
     private String mId;
     private String mName;
     private String mUrl;
-    private int mWidth;
-    private int mHeight;
 
     public Artist() {}
 
 
-    public Artist(String id, String name, String url, int width, int height) {
+    public Artist(String id, String name, String url) {
         mId = id;
         mName = name;
         mUrl = url;
-        mWidth = width;
-        mHeight = height;
+
     }
 
 
@@ -47,22 +44,6 @@ public class Artist {
         mUrl = url;
     }
 
-    public int getWidth() {
-        return mWidth;
-    }
-
-    public void setWidth(int width) {
-        mWidth = width;
-    }
-
-    public int getHeight() {
-        return mHeight;
-    }
-
-    public void setHeight(int height) {
-        mHeight = height;
-    }
-
 
     @Override
     public String toString() {
@@ -77,23 +58,19 @@ public class Artist {
 
         Artist artist = (Artist) o;
 
-        if (getWidth() != artist.getWidth()) return false;
-        if (getHeight() != artist.getHeight()) return false;
-        if (!getId().equals(artist.getId())) return false;
-        if (!getName().equals(artist.getName())) return false;
-        return getUrl().equals(artist.getUrl());
+        if (getId() != null ? !getId().equals(artist.getId()) : artist.getId() != null)
+            return false;
+        if (getName() != null ? !getName().equals(artist.getName()) : artist.getName() != null)
+            return false;
+        return !(getUrl() != null ? !getUrl().equals(artist.getUrl()) : artist.getUrl() != null);
 
     }
 
     @Override
     public int hashCode() {
-        int result = getId().hashCode();
-        result = 31 * result + getName().hashCode();
-        result = 31 * result + getUrl().hashCode();
-        result = 31 * result + getWidth();
-        result = 31 * result + getHeight();
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getName() != null ? getName().hashCode() : 0);
+        result = 31 * result + (getUrl() != null ? getUrl().hashCode() : 0);
         return result;
     }
-
-
 }

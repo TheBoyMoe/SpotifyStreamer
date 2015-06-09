@@ -1,4 +1,4 @@
-package com.example.spotifystreamer.utils;
+package com.example.spotifystreamer.view;
 
 
 import android.content.Context;
@@ -12,12 +12,15 @@ import android.widget.TextView;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Track;
+import com.example.spotifystreamer.utils.Utils;
 
 import java.util.List;
 
 public class TracksArrayAdapter extends ArrayAdapter<Track>{
 
     private static final String LOG_TAG = TracksArrayAdapter.class.getSimpleName();
+    private final boolean L = false;
+
     private List<Track> mList;
 
     public TracksArrayAdapter(Context context, List<Track> tracks) {
@@ -30,7 +33,7 @@ public class TracksArrayAdapter extends ArrayAdapter<Track>{
     public View getView(int position, View convertView, ViewGroup parent) {
         // retrieve the artist object for this position
         Track track = getItem(position);
-        Log.i(LOG_TAG, track.toString());
+        if(L) Log.i(LOG_TAG, track.toString());
 
         // inflate a new view if there isn't one available to be recycled
         if(convertView == null) {

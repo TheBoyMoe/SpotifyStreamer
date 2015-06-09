@@ -12,7 +12,7 @@ import android.widget.ListView;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Track;
-import com.example.spotifystreamer.utils.TracksArrayAdapter;
+import com.example.spotifystreamer.view.TracksArrayAdapter;
 import com.example.spotifystreamer.utils.Utils;
 
 import java.util.ArrayList;
@@ -90,16 +90,17 @@ public class TracksFragment extends Fragment {
         @Override
         protected void onPostExecute(List<Track> tracks) {
 
-            if(tracks.size() == 0) {
-                Utils.showToast(getActivity(), "No results found");
-                return;
-            }
+            if(tracks!= null) {
 
-            if(tracks != null)
+                if(tracks.size() == 0) {
+                    Utils.showToast(getActivity(), "No results found");
+                    return;
+                }
                 mTracksAdapter.updateView(tracks);
-            else
-                Utils.showToast(getActivity(), "Network error");
 
+            } else {
+                Utils.showToast(getActivity(), "Network error");
+            }
 
         }
 

@@ -33,6 +33,11 @@ public class Utils {
     private static final String LOG_TAG = Utils.class.getSimpleName();
     private static final boolean L = false;
 
+    // ensure the Utils class can not be instantiated
+    private Utils() {
+        throw new AssertionError();
+    }
+
     // download the search results
     public static String downloadJSONSearchResults(String query) {
 
@@ -81,57 +86,62 @@ public class Utils {
         final String ARTIST_ID_ATTRIBUTE = "id";
         final String ARTIST_NAME_ATTRIBUTE = "name";
         final String IMAGES_ARRAY = "images";
-        final String IMAGE_HEIGHT_ATTRIBUTE = "height";
-        final String IMAGE_WIDTH_ATTRIBUTE = "width";
         final String THUMBNAIL_URL_ATTRIBUTE = "url";
 
 
-        String id, name, url;
-        int width, height, total;
+        String id = "", name = "", url = "";
+        int total = 0;
 
         try {
             JSONObject jsonObject = new JSONObject(jsonStrResults);
-            JSONObject artistsObject = jsonObject.getJSONObject(ARTISTS_OBJECT);
+
+            JSONObject artistsObject;
+            JSONArray artists;
+
+            artistsObject = jsonObject.getJSONObject(ARTISTS_OBJECT);
 
             // check that results are actually returned
             total = artistsObject.getInt(TOTAL_OBJECT);
 
-            if(total > 0) {
-                if(L) Log.i(LOG_TAG, "Total number of records returned: " + total);
+            if (total > 0) {
+                if (L) Log.i(LOG_TAG, "Total number of records returned: " + total);
 
-                JSONArray artists = artistsObject.getJSONArray(ITEMS_ARRAY);
+                if (artistsObject.has(ITEMS_ARRAY)) {
+                    artists = artistsObject.getJSONArray(ITEMS_ARRAY);
 
-                // iterate through the array of artist JSON objects
-                for (int i = 0; i < artists.length(); i++) {
-                    JSONObject artist = artists.getJSONObject(i);
-                    id = artist.getString(ARTIST_ID_ATTRIBUTE);
-                    name = artist.getString(ARTIST_NAME_ATTRIBUTE);
+                    // iterate through the array of artist JSON objects
+                    for (int i = 0; i < artists.length(); i++) {
+                        JSONObject artist = artists.getJSONObject(i);
 
-                    // retrieve the image data
-                    JSONArray images = artist.getJSONArray(IMAGES_ARRAY);
-                    JSONObject image = null;
+                        if (artist.has(ARTIST_ID_ATTRIBUTE))
+                            id = artist.getString(ARTIST_ID_ATTRIBUTE);
+                        if (artist.has(ARTIST_NAME_ATTRIBUTE))
+                            name = artist.getString(ARTIST_NAME_ATTRIBUTE);
 
-                    if(images != null && images.length() > 0) {
-                        if(images.length() == 1) {
-                            image = images.getJSONObject(0);
-                        } else if(images.length() >= 2) {
-                            image = images.getJSONObject(images.length() - 2);
+                        // retrieve the image data
+                        JSONArray images = artist.getJSONArray(IMAGES_ARRAY);
+
+                        JSONObject image = null;
+
+                        if (images != null && images.length() > 0) {
+                            if (images.length() == 1) {
+                                image = images.getJSONObject(0);
+                            } else if (images.length() >= 2) {
+                                image = images.getJSONObject(images.length() - 2);
+                            }
+                            if (image.has(THUMBNAIL_URL_ATTRIBUTE))
+                                url = image.getString(THUMBNAIL_URL_ATTRIBUTE);
+
+                        } else {
+                            url = "no image found";
                         }
-                        url = image.getString(THUMBNAIL_URL_ATTRIBUTE);
-                        width = image.getInt(IMAGE_WIDTH_ATTRIBUTE);
-                        height = image.getInt(IMAGE_HEIGHT_ATTRIBUTE);
-                    } else {
-                        // set an empty string for the image path, substituted for a placeholder later in the code
-                        url = "no image found";
-                        width = 0;
-                        height = 0;
+
+                        // instantiate an artist pojo and add it to the manager
+                        Artist artistPojo = new Artist(id, name, url);
+                        artistList.add(artistPojo);
                     }
-
-                    // instantiate an artist pojo and add it to the manager
-                    Artist artistPojo = new Artist(id, name, url, width, height);
-                    artistList.add(artistPojo);
-
                 }
+
             } else {
                 Log.d(LOG_TAG, "No results found for search term");
             }
@@ -185,7 +195,8 @@ public class Utils {
 
 
 
-    public static List<Track> parseJSONTrackResults(String jsonResultsStr, String artistName, String artistId) {
+    public static List<Track> parseJSONTrackResults(String jsonResultsStr,
+                                                    String artistName, String artistId) {
 
         List<Track> trackList = new ArrayList<>();
 
@@ -198,32 +209,52 @@ public class Utils {
         final String IMAGES_ARRAY = "images";
         final String IMAGE_URL_ATTRIBUTE = "url";
 
-        String trackTitle, albumTitle, previewImageUrl, thumbnailUrl, previewUrl;
+        String trackTitle = "", albumTitle = "",
+                previewImageUrl = "", thumbnailUrl = "", previewUrl = "";
 
         try {
             JSONObject jsonObject = new JSONObject(jsonResultsStr);
-            JSONArray tracksArray = jsonObject.getJSONArray(TRACKS_ARRAY);
+            if(jsonObject != null && jsonObject.has(TRACKS_ARRAY)) {
 
-            for (int i = 0; i < tracksArray.length(); i++) {
-                JSONObject trackObject = tracksArray.getJSONObject(i);
-                trackTitle = trackObject.getString(TRACK_TITLE_ATTRIBUTE);
-                previewUrl = trackObject.getString(PREVIEW_URL_ATTRIBUTE);
+                JSONArray tracksArray = jsonObject.getJSONArray(TRACKS_ARRAY);
 
-                // retrieve the album images & title
-                JSONObject album = trackObject.getJSONObject(ALBUM_OBJECT);
-                albumTitle = album.getString(ALBUM_TITLE_ATTRIBUTE);
+                if(tracksArray != null && tracksArray.length() > 0) {
 
-                JSONArray images = album.getJSONArray(IMAGES_ARRAY);
-                JSONObject largeImage = images.getJSONObject(0);
-                previewImageUrl = largeImage.getString(IMAGE_URL_ATTRIBUTE);
+                    for (int i = 0; i < tracksArray.length(); i++) {
+                        JSONObject trackObject = tracksArray.getJSONObject(i);
+                        if(trackObject.has(TRACK_TITLE_ATTRIBUTE))
+                            trackTitle = trackObject.getString(TRACK_TITLE_ATTRIBUTE);
+                        if(trackObject.has(PREVIEW_URL_ATTRIBUTE))
+                            previewUrl = trackObject.getString(PREVIEW_URL_ATTRIBUTE);
 
-                JSONObject mediumImage = images.getJSONObject(1);
-                thumbnailUrl = mediumImage.getString(IMAGE_URL_ATTRIBUTE);
+                        // retrieve the album images & title
+                        JSONObject album = trackObject.getJSONObject(ALBUM_OBJECT);
+                        if(album != null) {
+                            if(album.has(ALBUM_TITLE_ATTRIBUTE))
+                                albumTitle = album.getString(ALBUM_TITLE_ATTRIBUTE);
+                            if(album.has(IMAGES_ARRAY)) {
+                                JSONArray images = album.getJSONArray(IMAGES_ARRAY);
+                                if(images != null && images.length() > 0) {
+                                    JSONObject largeImage = images.getJSONObject(0);
+                                    if (largeImage != null && largeImage.has(IMAGE_URL_ATTRIBUTE))
+                                        previewImageUrl = largeImage.getString(IMAGE_URL_ATTRIBUTE);
 
-                // create a track object & add it to the ArrayList
-                Track track = new Track(artistId, artistName,
-                        trackTitle, albumTitle, previewImageUrl, thumbnailUrl, previewUrl);
-                trackList.add(track);
+                                    JSONObject mediumImage = images.getJSONObject(1);
+                                    if(mediumImage != null && mediumImage.has(IMAGE_URL_ATTRIBUTE))
+                                        thumbnailUrl = mediumImage.getString(IMAGE_URL_ATTRIBUTE);
+                                }
+                            }
+
+                        }
+
+                        // create a track object & add it to the ArrayList
+                        Track track = new Track(artistId, artistName,
+                                trackTitle, albumTitle, previewImageUrl, thumbnailUrl, previewUrl);
+                        trackList.add(track);
+                    }
+                }
+
+
             }
 
         } catch (JSONException e) {
