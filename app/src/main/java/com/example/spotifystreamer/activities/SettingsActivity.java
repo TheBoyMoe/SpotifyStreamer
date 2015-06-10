@@ -36,6 +36,13 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
+
+/**
+ * Added ToolBar using code from:
+ * http://stackoverflow.com/questions/26509180/no-actionbar-in-preferenceactivity-after-upgrade-to-support-library-v21
+ */
+
+
 public class SettingsActivity extends PreferenceActivity {
     /**
      * Determines whether to always show the simplified settings UI, where
@@ -52,7 +59,7 @@ public class SettingsActivity extends PreferenceActivity {
 
         setupSimplePreferencesScreen();
 
-        // add the toolbar to the top of SettingsActivity
+        // add the settings_toolbar to the top of SettingsActivity
         LinearLayout root = (LinearLayout)findViewById(android.R.id.list).getParent().getParent().getParent();
         Toolbar bar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.settings_toolbar, root, false);
         root.addView(bar, 0); // insert at top

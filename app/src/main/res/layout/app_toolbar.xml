@@ -2,12 +2,11 @@
 <android.support.v7.widget.Toolbar
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/settings_toolbar"
+    android:id="@+id/app_toolbar"
     app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="?attr/actionBarSize"
     app:navigationContentDescription="@string/abc_action_bar_up_description"
     android:background="@color/md_grey_700"
-    app:navigationIcon="?attr/homeAsUpIndicator"
-    app:title="@string/action_settings" />
+    android:titleTextAppearance="@color/md_white_1000"/>

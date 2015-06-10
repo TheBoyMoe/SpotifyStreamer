@@ -3,6 +3,7 @@ package com.example.spotifystreamer.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -20,6 +21,12 @@ public class TracksActivity extends AppCompatActivity {
                     .add(R.id.container, new TracksFragment())
                     .commit();
         }
+
+        // Instantiate & configure the ToolBar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.app_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // add the up 'home' arrow
+        getSupportActionBar().setElevation(10.0f); // add a drop shadow
 
     }
 

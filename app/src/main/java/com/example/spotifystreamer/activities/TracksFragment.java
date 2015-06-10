@@ -1,9 +1,16 @@
 package com.example.spotifystreamer.activities;
 
+
+/**
+ * Add the subtitle to the ToolBar - fix thanks to MrEngineer13
+ * http://stackoverflow.com/questions/26998455/how-to-get-toolbar-from-fragment
+ */
+
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +20,8 @@ import android.widget.ListView;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Track;
-import com.example.spotifystreamer.view.TracksArrayAdapter;
 import com.example.spotifystreamer.utils.Utils;
+import com.example.spotifystreamer.view.TracksArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +62,9 @@ public class TracksFragment extends Fragment {
         Intent intent = getActivity().getIntent();
         mArtistId = intent.getStringExtra(EXTRA_ARTIST_ID);
         mArtistName = intent.getStringExtra(EXTRA_ARTIST_NAME);
-        getActivity().setTitle(mArtistName);
+
+        // add the Artist name as subtitle to the ToolBar
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setSubtitle(mArtistName);
 
         if(L) Log.i(LOG_TAG, "Artist name: " + mArtistName + ", artist id: " + mArtistId);
 

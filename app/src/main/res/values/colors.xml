@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="applicationPrimaryBackgroundColor">@color/md_deep_purple_500</color>
+    <color name="applicationSecondaryBackgroundColor">@color/md_deep_purple_700</color>
+    <color name="applicationAccentColor">@color/md_deep_purple_500</color>
+    <color name="applicationScreenBackgroundColor">@color/md_white_1000</color>
+    <color name="applicationPrimaryTextColor">@color/md_white_1000</color>
+    <color name="applicationSecondaryTextColor">@color/md_grey_400</color>
+    <color name="applicationActivatedBackground">@color/md_grey_600</color>
+
+</resources>
