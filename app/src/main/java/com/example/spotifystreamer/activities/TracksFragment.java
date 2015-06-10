@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.spotifystreamer.R;
@@ -62,6 +63,19 @@ public class TracksFragment extends Fragment {
 
         // execute Artist top-track download
         new ArtistQueryTask().execute();
+
+
+        // ListView setOnItemClickListener
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                Track track = mTracksAdapter.getItem(position);
+                String trackTitle = track.getTrackTitle();
+                String albumTitle = track.getAlbumTitle();
+                Utils.showToast(getActivity(), trackTitle + " from " + albumTitle);
+            }
+        });
+
 
         // instantiate the ArrayAdapter and bind it to the ListView
         mTracksAdapter = new TracksArrayAdapter(getActivity(), mTrackList);

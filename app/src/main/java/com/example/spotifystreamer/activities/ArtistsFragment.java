@@ -116,7 +116,6 @@ public class ArtistsFragment extends Fragment {
             mListView.setAdapter(mArtistsAdapter);
         } else {
             // re-bind the adapter to the listview on device rotation
-
             mListView.setAdapter(mArtistsAdapter);
         }
 
