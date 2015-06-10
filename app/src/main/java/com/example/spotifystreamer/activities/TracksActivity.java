@@ -1,5 +1,6 @@
 package com.example.spotifystreamer.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -34,6 +35,7 @@ public class TracksActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if (item.getItemId() == R.id.action_settings) {
+            startActivity(new Intent(TracksActivity.this, SettingsActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
