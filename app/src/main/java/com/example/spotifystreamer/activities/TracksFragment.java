@@ -18,9 +18,7 @@ import com.example.spotifystreamer.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A placeholder fragment containing a simple view.
- */
+
 public class TracksFragment extends Fragment {
 
     private static final String LOG_TAG = TracksFragment.class.getSimpleName();
@@ -35,8 +33,8 @@ public class TracksFragment extends Fragment {
     private ListView mListView;
     private List<Track> mTrackList;
 
-    public TracksFragment() {
-    }
+
+    public TracksFragment() { }
 
 
     @Override
@@ -56,6 +54,7 @@ public class TracksFragment extends Fragment {
         Intent intent = getActivity().getIntent();
         mArtistId = intent.getStringExtra(EXTRA_ARTIST_ID);
         mArtistName = intent.getStringExtra(EXTRA_ARTIST_NAME);
+        getActivity().setTitle(mArtistName);
 
         if(L) Log.i(LOG_TAG, "Artist name: " + mArtistName + ", artist id: " + mArtistId);
 
@@ -92,11 +91,10 @@ public class TracksFragment extends Fragment {
 
             if(tracks!= null) {
 
-                if(tracks.size() == 0) {
+                if(tracks.size() == 0)
                     Utils.showToast(getActivity(), "No results found");
-                    return;
-                }
-                mTracksAdapter.updateView(tracks);
+                else
+                    mTracksAdapter.updateView(tracks);
 
             } else {
                 Utils.showToast(getActivity(), "Network error");

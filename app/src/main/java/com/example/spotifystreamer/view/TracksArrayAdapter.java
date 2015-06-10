@@ -23,6 +23,7 @@ public class TracksArrayAdapter extends ArrayAdapter<Track>{
 
     private List<Track> mList;
 
+
     public TracksArrayAdapter(Context context, List<Track> tracks) {
         super(context, 0, tracks);
         mList = tracks;

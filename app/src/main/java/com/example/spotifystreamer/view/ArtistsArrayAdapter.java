@@ -19,7 +19,8 @@ import java.util.List;
 public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
 
     private static final String LOG_TAG = ArtistsArrayAdapter.class.getSimpleName();
-    private final boolean L = true;
+    private final boolean L = false;
+
     private List<Artist> mArtists;
 
 

@@ -15,16 +15,13 @@ import android.widget.ListView;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Artist;
-import com.example.spotifystreamer.view.ArtistsArrayAdapter;
 import com.example.spotifystreamer.utils.Utils;
+import com.example.spotifystreamer.view.ArtistsArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class ArtistsFragment extends Fragment {
 
     private static final String LOG_TAG = ArtistsFragment.class.getSimpleName();
@@ -32,6 +29,7 @@ public class ArtistsFragment extends Fragment {
 
     private final String EXTRA_ARTIST_ID = "artist id";
     private final String EXTRA_ARTIST_NAME = "artist_name";
+    //private final String BUNDLE_LISTVIEW_STATE = "saved list view state";
 
     private ListView mListView;
     private EditText mEditText;
@@ -39,8 +37,8 @@ public class ArtistsFragment extends Fragment {
     private ArtistsArrayAdapter mArtistsAdapter;
     private List<Artist> mArtists;
 
-    public ArtistsFragment() {
-    }
+
+    public ArtistsFragment() { }
 
 
     @Override
@@ -48,6 +46,7 @@ public class ArtistsFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         mArtists = new ArrayList<>();
+        setRetainInstance(true); // ensure the fragment outlives device rotation
     }
 
     @Override
@@ -71,8 +70,7 @@ public class ArtistsFragment extends Fragment {
                     Utils.showToast(getActivity(), "Enter search term(s)");
                 } else {
                     // instantiate and invoke the AsyncTask to download the search results
-                    SearchQueryTask queryTask = new SearchQueryTask();
-                    queryTask.execute(artistQuery);
+                    new SearchQueryTask().execute(artistQuery);
                 }
 
             }
@@ -97,12 +95,53 @@ public class ArtistsFragment extends Fragment {
         });
 
 
-        // instantiate the ArrayAdapter and bind it to the ListView
-        mArtistsAdapter = new ArtistsArrayAdapter(getActivity(), mArtists);
-        mListView.setAdapter(mArtistsAdapter);
+        // retrieve the saved data from the saved state
+//        if(savedInstanceState != null) {
+//            if(L) Log.i(LOG_TAG, "Reading back the bundle");
+//            Artist[] values = (Artist[]) savedInstanceState.getParcelableArray(BUNDLE_LISTVIEW_STATE);
+//            Log.i(LOG_TAG, "Values length: " + values.length);
+//            mArtistsAdapter.clear(); // prevents duplication of results
+//            for (int i = 0; i < values.length; i++) {
+//                Log.i(LOG_TAG, "Artist: " + values[i].toString());
+//                mArtistsAdapter.add(values[i]);
+//            }
+//
+//        }
+
+
+        if(savedInstanceState == null) {
+            // instantiate the ArrayAdapter and bind it to the ListView
+            // when the fragment is first instantiated
+            mArtistsAdapter = new ArtistsArrayAdapter(getActivity(), mArtists);
+            mListView.setAdapter(mArtistsAdapter);
+        } else {
+            // re-bind the adapter to the listview on device rotation
+
+            mListView.setAdapter(mArtistsAdapter);
+        }
 
         return view;
     }
+
+
+
+      // save the array adapter objects to the bundle
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//
+//        if(L) Log.i(LOG_TAG, "onSavedInstanceState called");
+//        // save the arraylist of artist objects to the bundle
+//        Artist[] values = new Artist[mArtistsAdapter.getCount()];
+//        //values = mArtists.toArray(values);
+//        if(L) Log.i(LOG_TAG, "Values length: " + values.length);
+//        for (int i = 0; i < values.length; i++) {
+//            values[i] = mArtistsAdapter.getItem(i);
+//            if(L) Log.i(LOG_TAG, "Artist: " + values[i].toString());
+//        }
+//        outState.putParcelableArray(BUNDLE_LISTVIEW_STATE, values);
+//
+//    }
 
 
 
@@ -133,7 +172,7 @@ public class ArtistsFragment extends Fragment {
         @Override
         protected void onPostExecute(List<Artist> artists) {
 
-            mArtistsAdapter.clear();
+            // mArtistsAdapter.clear();
 
             if(artists != null) {
 
@@ -145,7 +184,6 @@ public class ArtistsFragment extends Fragment {
                     // pass the results to the array adapter and update the view
                     // notifyDataSetChanged() called
                     mArtistsAdapter.updateView(artists);
-
                 }
 
             } else {
