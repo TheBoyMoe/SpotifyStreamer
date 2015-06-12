@@ -31,7 +31,7 @@ import java.util.List;
 public class Utils {
 
     private static final String LOG_TAG = Utils.class.getSimpleName();
-    private static final boolean L = false;
+    private static final boolean L = true;
 
     // ensure the Utils class can not be instantiated
     private Utils() {
@@ -39,7 +39,7 @@ public class Utils {
     }
 
     // download the search results
-    public static String downloadJSONSearchResults(String query) {
+    public static String downloadJSONSearchResults(String query, String limit) {
 
         // Will contain the raw JSON response as a string.
         String jsonStrResults = null;
@@ -52,11 +52,13 @@ public class Utils {
             final String URL_BASE = "https://api.spotify.com/v1/search?";
             final String QUERY_PARAM = "q";
             final String TYPE_PARAM = "type";
+            final String LIMIT_PARAM = "limit"; // total number of results returned
 
             // use UriBuilder to build the query
             Uri uri = Uri.parse(URL_BASE).buildUpon()
                     .appendQueryParameter(QUERY_PARAM, query)
                     .appendQueryParameter(TYPE_PARAM, type)
+                    .appendQueryParameter(LIMIT_PARAM, limit)
                     .build();
 
             URL url = new URL(uri.toString());
@@ -158,8 +160,8 @@ public class Utils {
     // download the artist's top ten tracks
     public static String downloadJSONArtistResults(String artistId, String country) {
 
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
+        //HttpURLConnection urlConnection = null;
+        //BufferedReader reader = null;
 
         // Will contain the raw JSON response as a string.
         String jsonResultsStr = null;
@@ -189,7 +191,6 @@ public class Utils {
         } catch (MalformedURLException e) {
             Log.e(LOG_TAG, "Error creating the url: " + e.getMessage());
         }
-
         return jsonResultsStr;
     }
 
@@ -201,6 +202,8 @@ public class Utils {
         List<Track> trackList = new ArrayList<>();
 
         // retrieve the following JSON values
+        // final String ERROR_OBJECT = "error";
+        // final String MESSAGE_ATTRIBUTE = "message";
         final String TRACKS_ARRAY = "tracks";
         final String ALBUM_OBJECT = "album";
         final String ALBUM_TITLE_ATTRIBUTE = "name";
@@ -212,10 +215,34 @@ public class Utils {
         String trackTitle = "", albumTitle = "",
                 previewImageUrl = "", thumbnailUrl = "", previewUrl = "";
 
+        if(jsonResultsStr.equals("Unavailable country")) {
+            Track track = new Track();
+            track.setTrackTitle("Unavailable country");
+            trackList.add(track);
+            return trackList;
+        }
+
+
         try {
             JSONObject jsonObject = new JSONObject(jsonResultsStr);
-            if(jsonObject != null && jsonObject.has(TRACKS_ARRAY)) {
 
+            // check for error due to failed country search - sending through a json string
+//            if(jsonObject != null && jsonObject.has(ERROR_OBJECT)) {
+//                Log.d(LOG_TAG, "400 Error Status");
+//                JSONObject error = jsonObject.getJSONObject(ERROR_OBJECT);
+//                if(error.has(MESSAGE_ATTRIBUTE)) {
+//                    String errorMessage = error.getString(MESSAGE_ATTRIBUTE);
+//                    if(errorMessage.equals("Unavailable country")) {
+//                        Track track = new Track();
+//                        track.setTrackTitle("unavailable country");
+//                        trackList.add(track);
+//                    }
+//                }
+//            }
+
+
+            if(jsonObject != null && jsonObject.has(TRACKS_ARRAY)) {
+                Log.d(LOG_TAG, "Processing Json data");
                 JSONArray tracksArray = jsonObject.getJSONArray(TRACKS_ARRAY);
 
                 if(tracksArray != null && tracksArray.length() > 0) {
@@ -279,6 +306,23 @@ public class Utils {
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
+            // catch country failures as well as successes
+            if (urlConnection.getResponseCode() == 400) {
+                Log.i(LOG_TAG, "Response code: " + urlConnection.getResponseCode());
+
+                // build a json string containing the error message
+//                String error = "{\n" +
+//                                "  \"error\": {\n" +
+//                                "    \"status\": 400,\n" +
+//                                "    \"message\": \"Unavailable country\"\n" +
+//                                "  }\n" +
+//                                "}";
+//                Log.i(LOG_TAG, "Error string: " + error);
+
+                String error = "Unavailable country";
+                return error;
+            }
+
             // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
@@ -296,7 +340,6 @@ public class Utils {
                 // Stream was empty.  No point in parsing.
                 return null;
             }
-
             // return the json string for parsing
             return buffer.toString();
 

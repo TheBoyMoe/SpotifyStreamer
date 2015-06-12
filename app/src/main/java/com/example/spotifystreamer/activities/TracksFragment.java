@@ -7,8 +7,10 @@ package com.example.spotifystreamer.activities;
  */
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -33,6 +35,7 @@ public class TracksFragment extends Fragment {
     private final boolean L = false;
     private final String EXTRA_ARTIST_ID = "artist id";
     private final String EXTRA_ARTIST_NAME = "artist_name";
+    private final String PREF_COUNTRY_KEY = "pref_key_country_code";
 
     private TracksArrayAdapter mTracksAdapter;
     private String mCountry;
@@ -68,7 +71,11 @@ public class TracksFragment extends Fragment {
 
         if(L) Log.i(LOG_TAG, "Artist name: " + mArtistName + ", artist id: " + mArtistId);
 
-        mCountry = "GB";
+        // retrieve user preferences from SharedPreferences
+        SharedPreferences prefs =
+            PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        mCountry = prefs.getString(PREF_COUNTRY_KEY,
+                                getActivity().getString(R.string.pref_country_code_default));
 
         // execute Artist top-track download
         new ArtistQueryTask().execute();
@@ -114,8 +121,14 @@ public class TracksFragment extends Fragment {
 
             if(tracks!= null) {
 
-                if(tracks.size() == 0)
+                if(tracks.size() == 0) {
                     Utils.showToast(getActivity(), "No results found");
+                }
+                else if(tracks.size() == 1 && tracks.get(0).getTrackTitle().equals("Unavailable country")) {
+                    Utils.showToast(getActivity(), "Album unavailable in the selected country");
+                    //getActivity().finish();
+                }
+
                 else
                     mTracksAdapter.updateView(tracks);
 

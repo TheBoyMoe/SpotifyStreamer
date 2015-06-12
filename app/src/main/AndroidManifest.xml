@@ -18,6 +18,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".activities.TracksActivity"
             android:label="@string/title_activity_artist"
@@ -26,10 +27,28 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ArtistsActivity" />
         </activity>
+
         <activity
             android:name=".activities.SettingsActivity"
+            android:theme="@style/SettingsTheme"
+            android:parentActivityName=".activities.ArtistsActivity"
+            android:label="@string/action_settings" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.ArtistsActivity" />
+        </activity>
+
+        <!-- Built in Settings Activity Template that comes with the SDK -->
+        <!-- Includes a series of pref_ xml files in the res/xml dir and
+        the strings_activity_settings.xml file in the res/values dir -->
+
+        <!--
+        <activity
+            android:name=".utils.SettingsActivityTemplate"
             android:label="@string/title_activity_settings" >
         </activity>
+        -->
+
     </application>
 
 </manifest>

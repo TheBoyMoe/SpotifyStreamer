@@ -3,15 +3,15 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="com.example.spotifystreamer.activities.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="com.example.spotifystreamer.utils.SettingsActivityTemplate$GeneralPreferenceFragment"
         android:title="@string/pref_header_general"/>
 
     <header
-        android:fragment="com.example.spotifystreamer.activities.SettingsActivity$NotificationPreferenceFragment"
+        android:fragment="com.example.spotifystreamer.utils.SettingsActivityTemplate$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications"/>
 
     <header
-        android:fragment="com.example.spotifystreamer.activities.SettingsActivity$DataSyncPreferenceFragment"
+        android:fragment="com.example.spotifystreamer.utils.SettingsActivityTemplate$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync"/>
 
 </preference-headers>

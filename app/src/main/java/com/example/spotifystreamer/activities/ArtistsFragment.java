@@ -1,8 +1,10 @@
 package com.example.spotifystreamer.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +31,7 @@ public class ArtistsFragment extends Fragment {
 
     private final String EXTRA_ARTIST_ID = "artist id";
     private final String EXTRA_ARTIST_NAME = "artist_name";
+    private final String PREFS_RESULTS_RETURNED = "pref_key_result_returned";
     //private final String BUNDLE_LISTVIEW_STATE = "saved list view state";
 
     private ListView mListView;
@@ -156,8 +159,14 @@ public class ArtistsFragment extends Fragment {
                 return null;
             }
 
+            // retrieve the number of results returned from SharedPreferences
+            SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+            String limit = prefs.getString(PREFS_RESULTS_RETURNED,
+                                getActivity().getString(R.string.pref_results_returned_default));
+
             // execute the Artist query & download the results
-            String jsonStringResult = Utils.downloadJSONSearchResults(params[0]);
+            String jsonStringResult = Utils.downloadJSONSearchResults(params[0], limit);
 
             // parse the downloaded Json
             if (jsonStringResult != null)

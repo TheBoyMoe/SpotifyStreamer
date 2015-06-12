@@ -12,6 +12,8 @@ public class Track {
     private String mPreviewUrl;
 
 
+    public Track() {}
+
     public Track(String artistId,
                  String artistName,
                  String trackTitle,
@@ -44,6 +46,10 @@ public class Track {
     
     public String getThumbnailUrl() {
         return mThumbnailUrl;
+    }
+
+    public void setTrackTitle(String trackTitle) {
+        mTrackTitle = trackTitle;
     }
 
     @Override

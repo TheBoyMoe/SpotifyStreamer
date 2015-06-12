@@ -1,12 +1,9 @@
-package com.example.spotifystreamer.activities;
+package com.example.spotifystreamer.utils;
 
 
 /**
  * Adding the ToolBar to the Activity - Thanks to CodePath
  * https://github.com/codepath/android_guides/wiki/Defining-The-ActionBar
- *
- * Adding Toolbar 'drop shadow' - thanks to Roberto
- * http://stackoverflow.com/questions/26575197/no-shadow-by-default-on-toolbar
  *
  * Preserving ListView on returning to Activity via up 'home' button - fix thanks to vikki_logs
  * http://stackoverflow.com/questions/22182888/actionbar-up-button-destroys-parent-activity-back-does-not
@@ -14,7 +11,9 @@ package com.example.spotifystreamer.activities;
  */
 
 
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -22,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.spotifystreamer.R;
+import com.example.spotifystreamer.activities.SettingsActivity;
 
 /**
  * BaseActivity provides all the common functionality for the other activities of the app
@@ -30,6 +30,7 @@ import com.example.spotifystreamer.R;
 public class BaseActivity extends AppCompatActivity {
 
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,9 +38,14 @@ public class BaseActivity extends AppCompatActivity {
 
         // Instantiate & configure the ToolBar
         Toolbar toolbar = (Toolbar) findViewById(R.id.app_toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setElevation(10.0f); // add a drop shadow
 
+        if(toolbar != null) {
+            setSupportActionBar(toolbar);
+            // 'drop shadow' effect is only supported in APi 21+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                toolbar.setElevation(10.0f);
+            }
+        }
     }
 
 
@@ -59,6 +65,5 @@ public class BaseActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
 }

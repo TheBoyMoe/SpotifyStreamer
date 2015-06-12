@@ -8,5 +8,4 @@
     android:layout_height="wrap_content"
     android:minHeight="?attr/actionBarSize"
     app:navigationContentDescription="@string/abc_action_bar_up_description"
-    android:background="@color/md_grey_700"
-    android:titleTextAppearance="@color/md_white_1000"/>
+    android:background="@color/primary" />

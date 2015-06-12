@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="pref_results_returned_entries">
+        <item name="10">10</item>
+        <item name="20">20</item>
+        <item name="30">30</item>
+        <item name="40">40</item>
+        <item name="50">50</item>
+    </string-array>
+
+    <string-array name="pref_results_returned_values">
+        <item name="10">10</item>
+        <item name="20">20</item>
+        <item name="30">30</item>
+        <item name="40">40</item>
+        <item name="50">50</item>
+    </string-array>
+
+</resources>

@@ -3,6 +3,7 @@ package com.example.spotifystreamer.activities;
 import android.os.Bundle;
 
 import com.example.spotifystreamer.R;
+import com.example.spotifystreamer.utils.BaseActivity;
 
 
 public class ArtistsActivity extends BaseActivity {
@@ -69,7 +70,7 @@ public class ArtistsActivity extends BaseActivity {
 //    public boolean onOptionsItemSelected(MenuItem item) {
 //
 //        if (item.getItemId() == R.id.action_settings) {
-//            startActivity(new Intent(ArtistsActivity.this, SettingsActivity.class));
+//            startActivity(new Intent(ArtistsActivity.this, SettingsActivityTemplate.class));
 //            return true;
 //        }
 //        return super.onOptionsItemSelected(item);

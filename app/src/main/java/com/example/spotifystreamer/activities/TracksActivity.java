@@ -3,9 +3,10 @@ package com.example.spotifystreamer.activities;
 import android.os.Bundle;
 
 import com.example.spotifystreamer.R;
+import com.example.spotifystreamer.utils.BaseActivity;
 
 
-public class TracksActivity extends BaseActivity{
+public class TracksActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,7 @@ public class TracksActivity extends BaseActivity{
 //    public boolean onOptionsItemSelected(MenuItem item) {
 //
 //        if (item.getItemId() == R.id.action_settings) {
-//            startActivity(new Intent(TracksActivity.this, SettingsActivity.class));
+//            startActivity(new Intent(TracksActivity.this, SettingsActivityTemplate.class));
 //            return true;
 //        }
 //        return super.onOptionsItemSelected(item);
