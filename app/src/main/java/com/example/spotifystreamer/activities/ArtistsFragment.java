@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.widget.ListView;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Artist;
+import com.example.spotifystreamer.model.Track;
 import com.example.spotifystreamer.utils.Utils;
 import com.example.spotifystreamer.view.ArtistsArrayAdapter;
 
@@ -29,9 +31,12 @@ public class ArtistsFragment extends Fragment {
     private static final String LOG_TAG = ArtistsFragment.class.getSimpleName();
     private final boolean L = true;
 
-    private final String EXTRA_ARTIST_ID = "artist id";
-    private final String EXTRA_ARTIST_NAME = "artist_name";
+    // private final String EXTRA_ARTIST_ID = "artist id";
+    // private final String EXTRA_ARTIST_NAME = "artist_name";
+
+    private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
     private final String PREFS_RESULTS_RETURNED = "pref_key_result_returned";
+    private final String PREF_COUNTRY_KEY = "pref_key_country_code";
     //private final String BUNDLE_LISTVIEW_STATE = "saved list view state";
 
     private ListView mListView;
@@ -80,7 +85,7 @@ public class ArtistsFragment extends Fragment {
         });
 
 
-        // register item click listener
+        // register item click listener - execute Top-Ten Track download
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -90,10 +95,19 @@ public class ArtistsFragment extends Fragment {
                 String artistName = artist.getName();
                 String artistId = artist.getId();
 
-                Intent intent = new Intent(getActivity(), TracksActivity.class);
-                intent.putExtra(EXTRA_ARTIST_NAME, artistName);
-                intent.putExtra(EXTRA_ARTIST_ID, artistId);
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), TracksActivity.class);
+//                intent.putExtra(EXTRA_ARTIST_NAME, artistName);
+//                intent.putExtra(EXTRA_ARTIST_ID, artistId);
+//                startActivity(intent);
+
+                // retrieve user preferences from SharedPreferences
+                SharedPreferences prefs =
+                        PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+                String country = prefs.getString(PREF_COUNTRY_KEY, getActivity().getString(R.string.pref_country_code_default));
+
+                // execute track download
+                new ArtistQueryTask(artistName, artistId, country).execute();
+
             }
         });
 
@@ -200,6 +214,69 @@ public class ArtistsFragment extends Fragment {
 
         }
     }
+
+
+
+    private class ArtistQueryTask extends AsyncTask<Void , Void, List<Track>> {
+
+        String artistName;
+        String artistId;
+        String countryCode;
+
+        public ArtistQueryTask(String name, String id, String country) {
+            artistName = name;
+            artistId = id;
+            countryCode = country;
+        }
+
+
+        @Override
+        protected List<Track> doInBackground(Void... voids) {
+
+            String jsonResults = Utils.downloadJSONArtistResults(artistId, countryCode);
+
+            List<Track> trackList = null;
+            if(jsonResults != null)
+                trackList = Utils.parseJSONTrackResults(jsonResults, artistName, artistId);
+
+            return trackList;
+        }
+
+
+        @Override
+        protected void onPostExecute(List<Track> tracks) {
+
+            if(tracks!= null) {
+
+                if(tracks.size() == 0) {
+                    Utils.showToast(getActivity(), "No results found");
+                }
+                else if(tracks.size() == 1 && tracks.get(0).getTrackTitle().equals("Unavailable country")) {
+                    Utils.showToast(getActivity(), "Album unavailable in the selected country");
+                }
+
+                else {
+                    Log.i(LOG_TAG, "Track number: " + tracks.size());
+
+                    //Bundle bundle = new Bundle();
+                    //bundle.putParcelableArrayList(EXTRA_TRACK_RESULTS, (ArrayList<? extends Parcelable>) tracks);
+
+                    Intent intent = new Intent(getActivity(), TracksActivity.class);
+                    //intent.putExtras(bundle);
+                    intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS,
+                            (ArrayList<? extends Parcelable>) tracks);
+                    startActivity(intent);
+
+                }
+
+            } else {
+                Utils.showToast(getActivity(), "Network error");
+            }
+
+        }
+
+    }
+
 
 
 }

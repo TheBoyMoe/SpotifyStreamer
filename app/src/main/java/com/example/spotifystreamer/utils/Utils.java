@@ -31,7 +31,7 @@ import java.util.List;
 public class Utils {
 
     private static final String LOG_TAG = Utils.class.getSimpleName();
-    private static final boolean L = true;
+    private static final boolean L = false;
 
     // ensure the Utils class can not be instantiated
     private Utils() {
