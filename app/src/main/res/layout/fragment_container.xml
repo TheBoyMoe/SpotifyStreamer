@@ -6,6 +6,6 @@
 
     <include layout="@layout/app_toolbar"/>
 
-    <!-- fragment goes here -->
+    <!-- fragment displayed here -->
 
 </LinearLayout>

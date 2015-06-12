@@ -3,7 +3,8 @@
     android:id="@+id/list_view_item_track_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/dimen_normal"
+    android:paddingTop="@dimen/dimen_normal"
+    android:paddingBottom="@dimen/dimen_normal"
     tools:context="com.example.spotifystreamer.activities.TracksFragment">
 
 

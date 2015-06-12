@@ -23,6 +23,12 @@
             android:name=".activities.TracksActivity"
             android:label="@string/title_activity_artist"
             android:parentActivityName=".activities.ArtistsActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ArtistsActivity" />
@@ -37,6 +43,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ArtistsActivity" />
         </activity>
+
+        <provider
+            android:authorities="com.example.spotifystreamer.model.QuerySuggestionProvider"
+            android:name=".model.QuerySuggestionProvider" />
 
         <!-- Built in Settings Activity Template that comes with the SDK -->
         <!-- Includes a series of pref_ xml files in the res/xml dir and

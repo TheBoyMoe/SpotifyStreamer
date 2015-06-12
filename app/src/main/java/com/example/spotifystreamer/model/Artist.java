@@ -74,20 +74,6 @@ public class Artist {
         return result;
     }
 
-    // methods required to implement the Parcelable interface
-    // required so as to save Artist objects to the Fragment's Bundle
-    // on device configuration changes
-//    @Override
-//    public int describeContents() {
-//        return 0;
-//    }
-//
-//    @Override
-//    public void writeToParcel(Parcel parcel, int i) {
-//        parcel.writeString(mId);
-//        parcel.writeString(mName);
-//        parcel.writeString(mUrl);
-//    }
 
 
 }

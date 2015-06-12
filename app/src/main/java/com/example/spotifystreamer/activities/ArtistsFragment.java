@@ -1,14 +1,21 @@
 package com.example.spotifystreamer.activities;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -18,6 +25,7 @@ import android.widget.ListView;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Artist;
+import com.example.spotifystreamer.model.QuerySuggestionProvider;
 import com.example.spotifystreamer.model.Track;
 import com.example.spotifystreamer.utils.Utils;
 import com.example.spotifystreamer.view.ArtistsArrayAdapter;
@@ -26,7 +34,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ArtistsFragment extends Fragment {
+/**
+ * Implementation of the SearchView & saving RecentQuerySuggestions
+ * https://developer.android.com/training/search/setup.html
+ * http://antonioleiva.com/actionbarcompat-action-views/
+ * http://developer.android.com/guide/topics/search/adding-recent-query-suggestions.html
+ */
+
+public class ArtistsFragment extends Fragment implements  SearchView.OnQueryTextListener{
 
     private static final String LOG_TAG = ArtistsFragment.class.getSimpleName();
     private final boolean L = true;
@@ -44,7 +59,9 @@ public class ArtistsFragment extends Fragment {
     private ImageButton mButton;
     private ArtistsArrayAdapter mArtistsAdapter;
     private List<Artist> mArtists;
-
+    private SearchView mSearchView;
+    private SearchRecentSuggestions mSearchRecentSuggestions;
+    private MenuItem mSearchMenuItem;
 
     public ArtistsFragment() { }
 
@@ -55,6 +72,8 @@ public class ArtistsFragment extends Fragment {
 
         mArtists = new ArrayList<>();
         setRetainInstance(true); // ensure the fragment outlives device rotation
+        setHasOptionsMenu(true); // add the search menu item
+
     }
 
     @Override
@@ -62,27 +81,30 @@ public class ArtistsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_artists, container, false);
 
         // get references to view elements of interest
-        mEditText = (EditText) view.findViewById(R.id.edit_text_search_query);
-        mButton = (ImageButton) view.findViewById(R.id.button_launch_query);
+        // mEditText = (EditText) view.findViewById(R.id.edit_text_search_query);
+        // mButton = (ImageButton) view.findViewById(R.id.button_launch_query);
         mListView = (ListView) view.findViewById(R.id.list_view_item__artist_container);
 
 
         // setOnClickListener on search button - retrieve the Artist query and execute the search
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String artistQuery = mEditText.getText().toString();
-
-                if(artistQuery.equals("")) {
-                    Log.d(LOG_TAG, "No query submitted");
-                    Utils.showToast(getActivity(), "Enter search term(s)");
-                } else {
-                    // instantiate and invoke the AsyncTask to download the search results
-                    new SearchQueryTask().execute(artistQuery);
-                }
-
-            }
-        });
+//        mButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                Utils.hideKeyboard(getActivity(), mEditText.getWindowToken());
+//
+//                String artistQuery = mEditText.getText().toString();
+//
+//                if(artistQuery.equals("")) {
+//                    Log.d(LOG_TAG, "No query submitted");
+//                    Utils.showToast(getActivity(), "Enter search term(s)");
+//                } else {
+//                    // instantiate and invoke the AsyncTask to download the search results
+//                    new SearchQueryTask().execute(artistQuery);
+//                }
+//
+//            }
+//        });
 
 
         // register item click listener - execute Top-Ten Track download
@@ -160,7 +182,80 @@ public class ArtistsFragment extends Fragment {
 //    }
 
 
+    // handle search query's submitted via the SearchView
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
 
+        inflater.inflate(R.menu.menu_search, menu);
+
+        // get the SearchView and set the searchable configuration
+        SearchManager mgr = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        mSearchView.setSearchableInfo(mgr.getSearchableInfo(getActivity().getComponentName()));
+        //searchView.setIconifiedByDefault(false);
+        mSearchView.setSubmitButtonEnabled(true);
+        mSearchView.setOnQueryTextListener(this);
+
+        // cache a reference to the SearchMenuItem
+        mSearchMenuItem = menu.findItem(R.id.action_search);
+
+    }
+
+
+    // submit search to Spotify
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+
+        // hide softkeyboard upon submitting search
+        Utils.hideKeyboard(getActivity(), mSearchView.getWindowToken());
+
+        // close the search menu item
+        //if(mSearchMenuItem.isVisible())
+            mSearchMenuItem.collapseActionView();
+
+        // save the search query to the RecentSuggestionsProvider
+        mSearchRecentSuggestions = new SearchRecentSuggestions(getActivity(),
+                QuerySuggestionProvider.AUTHORITY, QuerySuggestionProvider.MODE);
+        mSearchRecentSuggestions.saveRecentQuery(query, null);
+
+
+
+        if(query.equals("")) {
+            Log.d(LOG_TAG, "No query submitted");
+            Utils.showToast(getActivity(), "Enter search term(s)");
+        } else {
+            // instantiate and invoke the AsyncTask to download the search results
+            new SearchQueryTask().execute(query);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(item.getItemId() == R.id.action_delete) {
+            if(mSearchRecentSuggestions != null) {
+                mSearchRecentSuggestions.clearHistory();
+                Utils.showToast(getActivity(), "Clearing search history saved to device");
+            } else {
+                Utils.showToast(getActivity(), "Cache clear, nothing to delete ");
+            }
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+
+
+    // Search the Spotify site for the submitted artist name
     private class SearchQueryTask extends AsyncTask<String, Void, List<Artist>> {
 
         // execute the search, download & parse the json results
@@ -216,7 +311,7 @@ public class ArtistsFragment extends Fragment {
     }
 
 
-
+    // download the artist's top-ten tracks
     private class ArtistQueryTask extends AsyncTask<Void , Void, List<Track>> {
 
         String artistName;
