@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Artist;
@@ -64,6 +65,7 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     private SearchView mSearchView;
     private static SearchRecentSuggestions sSearchRecentSuggestions;
     private MenuItem mSearchMenuItem;
+    private ProgressBar mProgressBar;
 
     public ArtistsFragment() { }
 
@@ -80,13 +82,14 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_artists, container, false);
+        View view = inflater.inflate(R.layout.fragment_content, container, false);
 
-        // get references to view elements of interest
+        // cache references to view elements of interest
         // mEditText = (EditText) view.findViewById(R.id.edit_text_search_query);
         // mButton = (ImageButton) view.findViewById(R.id.button_launch_query);
-        mListView = (ListView) view.findViewById(R.id.list_view_item__artist_container);
-
+        mListView = (ListView) view.findViewById(R.id.list_view_item_container);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
+        mProgressBar.setVisibility(View.GONE);
 
         // setOnClickListener on search button - retrieve the Artist query and execute the search
 //        mButton.setOnClickListener(new View.OnClickListener() {
@@ -267,6 +270,18 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     // Search the Spotify site for the submitted artist name
     private class SearchQueryTask extends AsyncTask<String, Void, List<Artist>> {
 
+
+        // display the progress indicator while the search/download occurs
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            // clear the listview and display the progress spinner
+            if(!mArtistsAdapter.isEmpty())
+                mArtistsAdapter.clear();
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
+
         // execute the search, download & parse the json results
         @Override
         protected List<Artist> doInBackground(String... params) {
@@ -299,6 +314,8 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
         protected void onPostExecute(List<Artist> artists) {
 
             // mArtistsAdapter.clear();
+            // hide the progressbar
+            mProgressBar.setVisibility(View.GONE);
 
             if(artists != null) {
 

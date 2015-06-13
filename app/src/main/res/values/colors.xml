@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="primary">@color/md_deep_purple_500</color>
-    <color name="primary_dark">@color/md_deep_purple_700</color>
-    <color name="accent">@color/md_white_1000</color>
-    <color name="primary_text_color">@color/md_white_1000</color>
-    <!--
-    <color name="applicationScreenBackgroundColor">@color/md_white_1000</color>
+    <color name="applicationPrimaryColor">@color/md_red_700</color>
+    <color name="applicationPrimaryColorDark">@color/md_red_900</color>
+    <color name="applicationAccent">@color/md_white_1000</color>
     <color name="applicationPrimaryTextColor">@color/md_white_1000</color>
     <color name="applicationSecondaryTextColor">@color/md_grey_400</color>
-    <color name="applicationActivatedBackground">@color/md_grey_600</color>
+    <!--
+    <color name="applicationScreenBackgroundColor"></color>
+    <color name="applicationActivatedBackgroundColor"></color>
     -->
-
 </resources>

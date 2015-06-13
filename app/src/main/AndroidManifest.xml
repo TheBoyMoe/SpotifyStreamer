@@ -45,8 +45,8 @@
         </activity>
 
         <provider
-            android:authorities="com.example.spotifystreamer.model.QuerySuggestionProvider"
-            android:name=".model.QuerySuggestionProvider" />
+            android:name="com.example.spotifystreamer.model.QuerySuggestionProvider"
+            android:authorities="com.example.spotifystreamer.model.QuerySuggestionProvider"/>
 
         <!-- Built in Settings Activity Template that comes with the SDK -->
         <!-- Includes a series of pref_ xml files in the res/xml dir and

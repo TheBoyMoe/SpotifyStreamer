@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Track;
@@ -40,6 +41,7 @@ public class TracksFragment extends Fragment {
     // private String mArtistId;
     private ListView mListView;
     private List<Track> mTrackList;
+    private ProgressBar mProgressBar;
 
 
     public TracksFragment() { }
@@ -54,9 +56,12 @@ public class TracksFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_tracks, container, false);
+        View view = inflater.inflate(R.layout.fragment_content, container, false);
 
-        mListView = (ListView) view.findViewById(R.id.list_view_item_track_container);
+        // cache references to elements of interest
+        mListView = (ListView) view.findViewById(R.id.list_view_item_container);
+        mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
+        mProgressBar.setVisibility(View.GONE);
 
         // retrieve the intent extra
         Intent intent = getActivity().getIntent();
