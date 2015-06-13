@@ -12,8 +12,6 @@ public class ArtistsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.fragment_container);
-
 
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
@@ -21,62 +19,7 @@ public class ArtistsActivity extends BaseActivity {
                     .commit();
         }
 
-//        // Instantiate & configure the ToolBar
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.app_toolbar);
-//        setSupportActionBar(toolbar);
-//        getSupportActionBar().setElevation(10.0f); // add a drop shadow
-
-
-
-        // version 2 - works
-//        if(savedInstanceState == null) {
-//            if(L) Log.i(LOG_TAG, "Instantiating a new fragment");
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.container, new ArtistsFragment(), FRAGMENT_TAG)
-//                    .commit();
-//        } else {
-//            if(L) Log.i(LOG_TAG, "Retrieving the fragment");
-//            getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG);
-//        }
-
-
-        // version 3 - works
-        // fetch the fragment, otherwise instantiate it
-//        if(savedInstanceState != null) {
-//            mArtistsFragment = (ArtistsFragment) getSupportFragmentManager()
-//                    .findFragmentByTag(FRAGMENT_TAG);
-//        } else if(mArtistsFragment == null) {
-//            mArtistsFragment = new ArtistsFragment();
-//        }
-//
-//        // add the fragment to the layout if it isn't already
-//        if(!mArtistsFragment.isInLayout()) {
-//            getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.container, mArtistsFragment, FRAGMENT_TAG)
-//                    .commit();
-//        }
-
     }
-
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//
-//        if (item.getItemId() == R.id.action_settings) {
-//            startActivity(new Intent(ArtistsActivity.this, SettingsActivityTemplate.class));
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
-
-
 
 
 }

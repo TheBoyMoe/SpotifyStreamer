@@ -41,6 +41,8 @@ public class Utils {
         throw new AssertionError();
     }
 
+
+
     // download the search results
     public static String downloadJSONSearchResults(String query, String limit) {
 
@@ -163,9 +165,6 @@ public class Utils {
     // download the artist's top ten tracks
     public static String downloadJSONArtistResults(String artistId, String country) {
 
-        //HttpURLConnection urlConnection = null;
-        //BufferedReader reader = null;
-
         // Will contain the raw JSON response as a string.
         String jsonResultsStr = null;
 
@@ -205,8 +204,6 @@ public class Utils {
         List<Track> trackList = new ArrayList<>();
 
         // retrieve the following JSON values
-        // final String ERROR_OBJECT = "error";
-        // final String MESSAGE_ATTRIBUTE = "message";
         final String TRACKS_ARRAY = "tracks";
         final String ALBUM_OBJECT = "album";
         final String ALBUM_TITLE_ATTRIBUTE = "name";
@@ -228,21 +225,6 @@ public class Utils {
 
         try {
             JSONObject jsonObject = new JSONObject(jsonResultsStr);
-
-            // check for error due to failed country search - sending through a json string
-//            if(jsonObject != null && jsonObject.has(ERROR_OBJECT)) {
-//                Log.d(LOG_TAG, "400 Error Status");
-//                JSONObject error = jsonObject.getJSONObject(ERROR_OBJECT);
-//                if(error.has(MESSAGE_ATTRIBUTE)) {
-//                    String errorMessage = error.getString(MESSAGE_ATTRIBUTE);
-//                    if(errorMessage.equals("Unavailable country")) {
-//                        Track track = new Track();
-//                        track.setTrackTitle("unavailable country");
-//                        trackList.add(track);
-//                    }
-//                }
-//            }
-
 
             if(jsonObject != null && jsonObject.has(TRACKS_ARRAY)) {
                 Log.d(LOG_TAG, "Processing Json data");
@@ -312,15 +294,6 @@ public class Utils {
             // catch country failures as well as successes
             if (urlConnection.getResponseCode() == 400) {
                 Log.i(LOG_TAG, "Response code: " + urlConnection.getResponseCode());
-
-                // build a json string containing the error message
-//                String error = "{\n" +
-//                                "  \"error\": {\n" +
-//                                "    \"status\": 400,\n" +
-//                                "    \"message\": \"Unavailable country\"\n" +
-//                                "  }\n" +
-//                                "}";
-//                Log.i(LOG_TAG, "Error string: " + error);
 
                 String error = "Unavailable country";
                 return error;

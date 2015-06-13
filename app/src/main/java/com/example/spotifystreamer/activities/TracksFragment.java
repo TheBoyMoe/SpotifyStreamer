@@ -29,16 +29,9 @@ import java.util.List;
 public class TracksFragment extends Fragment {
 
     private static final String LOG_TAG = TracksFragment.class.getSimpleName();
-    // private final String EXTRA_ARTIST_ID = "artist id";
-    // private final String EXTRA_ARTIST_NAME = "artist_name";
     private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
-    // private final String PREF_COUNTRY_KEY = "pref_key_country_code";
-
 
     private TracksArrayAdapter mTracksAdapter;
-    // private String mCountry;
-    // private String mArtistName;
-    // private String mArtistId;
     private ListView mListView;
     private List<Track> mTrackList;
     private ProgressBar mProgressBar;
@@ -77,14 +70,6 @@ public class TracksFragment extends Fragment {
 
         }
 
-//        // retrieve user preferences from SharedPreferences
-//        SharedPreferences prefs =
-//            PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-//        mCountry = prefs.getString(PREF_COUNTRY_KEY, getActivity().getString(R.string.pref_country_code_default));
-
-        // execute Artist top-track download
-        //new ArtistQueryTask().execute();
-
 
         // ListView setOnItemClickListener
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -99,47 +84,6 @@ public class TracksFragment extends Fragment {
 
         return view;
     }
-
-
-//    private class ArtistQueryTask extends AsyncTask<Void , Void, List<Track>> {
-//
-//        @Override
-//        protected List<Track> doInBackground(Void... voids) {
-//
-//            String jsonResults = Utils.downloadJSONArtistResults(mArtistId, mCountry);
-//
-//            List<Track> trackList = null;
-//            if(jsonResults != null)
-//                trackList = Utils.parseJSONTrackResults(jsonResults, mArtistName, mArtistId);
-//
-//            return trackList;
-//        }
-//
-//
-//        @Override
-//        protected void onPostExecute(List<Track> tracks) {
-//
-//            if(tracks!= null) {
-//
-//                if(tracks.size() == 0) {
-//                    Utils.showToast(getActivity(), "No results found");
-//                }
-//                else if(tracks.size() == 1 && tracks.get(0).getTrackTitle().equals("Unavailable country")) {
-//                    Utils.showToast(getActivity(), "Album unavailable in the selected country");
-//                    //getActivity().finish();
-//                }
-//
-//                else
-//                    mTracksAdapter.updateView(tracks);
-//
-//            } else {
-//                Utils.showToast(getActivity(), "Network error");
-//            }
-//
-//        }
-//
-//    }
-
 
 
 }

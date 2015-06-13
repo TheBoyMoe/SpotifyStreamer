@@ -34,15 +34,4 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
 
-    // enable the 'up' arrow to send the user back to the previous activity
-    // not req'd when activity has been defined as the child of another,
-    // up arrow works automatically - sends user to the 'home' activity
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        if(item.getItemId() == android.R.id.home)
-//            finish();
-//        return super.onOptionsItemSelected(item);
-//    }
-
-
 }

@@ -49,17 +49,11 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     private static final String LOG_TAG = ArtistsFragment.class.getSimpleName();
     private final boolean L = true;
 
-    // private final String EXTRA_ARTIST_ID = "artist id";
-    // private final String EXTRA_ARTIST_NAME = "artist_name";
-
     private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
     private final String PREFS_RESULTS_RETURNED = "pref_key_result_returned";
     private final String PREF_COUNTRY_KEY = "pref_key_country_code";
-    //private final String BUNDLE_LISTVIEW_STATE = "saved list view state";
 
     private ListView mListView;
-    // private EditText mEditText;
-    // private ImageButton mButton;
     private ArtistsArrayAdapter mArtistsAdapter;
     private List<Artist> mArtists;
     private SearchView mSearchView;
@@ -85,31 +79,9 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
         View view = inflater.inflate(R.layout.fragment_content, container, false);
 
         // cache references to view elements of interest
-        // mEditText = (EditText) view.findViewById(R.id.edit_text_search_query);
-        // mButton = (ImageButton) view.findViewById(R.id.button_launch_query);
         mListView = (ListView) view.findViewById(R.id.list_view_item_container);
         mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
         mProgressBar.setVisibility(View.GONE);
-
-        // setOnClickListener on search button - retrieve the Artist query and execute the search
-//        mButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//
-//                Utils.hideKeyboard(getActivity(), mEditText.getWindowToken());
-//
-//                String artistQuery = mEditText.getText().toString();
-//
-//                if(artistQuery.equals("")) {
-//                    Log.d(LOG_TAG, "No query submitted");
-//                    Utils.showToast(getActivity(), "Enter search term(s)");
-//                } else {
-//                    // instantiate and invoke the AsyncTask to download the search results
-//                    new SearchQueryTask().execute(artistQuery);
-//                }
-//
-//            }
-//        });
 
 
         // register item click listener - execute Top-Ten Track download
@@ -122,11 +94,6 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
                 String artistName = artist.getName();
                 String artistId = artist.getId();
 
-//                Intent intent = new Intent(getActivity(), TracksActivity.class);
-//                intent.putExtra(EXTRA_ARTIST_NAME, artistName);
-//                intent.putExtra(EXTRA_ARTIST_ID, artistId);
-//                startActivity(intent);
-
                 // retrieve user preferences from SharedPreferences
                 SharedPreferences prefs =
                         PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
@@ -138,19 +105,6 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
             }
         });
 
-
-        // retrieve the saved data from the saved state
-//        if(savedInstanceState != null) {
-//            if(L) Log.i(LOG_TAG, "Reading back the bundle");
-//            Artist[] values = (Artist[]) savedInstanceState.getParcelableArray(BUNDLE_LISTVIEW_STATE);
-//            Log.i(LOG_TAG, "Values length: " + values.length);
-//            mArtistsAdapter.clear(); // prevents duplication of results
-//            for (int i = 0; i < values.length; i++) {
-//                Log.i(LOG_TAG, "Artist: " + values[i].toString());
-//                mArtistsAdapter.add(values[i]);
-//            }
-//
-//        }
 
 
         if(savedInstanceState == null) {
@@ -168,25 +122,6 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
 
 
 
-      // save the array adapter objects to the bundle
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//
-//        if(L) Log.i(LOG_TAG, "onSavedInstanceState called");
-//        // save the arraylist of artist objects to the bundle
-//        Artist[] values = new Artist[mArtistsAdapter.getCount()];
-//        //values = mArtists.toArray(values);
-//        if(L) Log.i(LOG_TAG, "Values length: " + values.length);
-//        for (int i = 0; i < values.length; i++) {
-//            values[i] = mArtistsAdapter.getItem(i);
-//            if(L) Log.i(LOG_TAG, "Artist: " + values[i].toString());
-//        }
-//        outState.putParcelableArray(BUNDLE_LISTVIEW_STATE, values);
-//
-//    }
-
-
     // handle search query's submitted via the SearchView
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -198,7 +133,6 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
         SearchManager mgr = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         mSearchView.setSearchableInfo(mgr.getSearchableInfo(getActivity().getComponentName()));
-        //searchView.setIconifiedByDefault(false);
         mSearchView.setSubmitButtonEnabled(true);
         mSearchView.setOnQueryTextListener(this);
 
@@ -226,14 +160,6 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
         // instantiate and invoke the AsyncTask to download the search results
         new SearchQueryTask().execute(query);
 
-//        if(query.equals("")) {
-//            Log.d(LOG_TAG, "No query submitted");
-//            Utils.showToast(getActivity(), "Enter search term(s)");
-//        } else {
-//            // instantiate and invoke the AsyncTask to download the search results
-//            new SearchQueryTask().execute(query);
-//        }
-
         return true;
     }
 
@@ -249,9 +175,6 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
         if(item.getItemId() == R.id.action_delete) {
 
             if(sSearchRecentSuggestions != null) {
-//                ConfirmationDialogFragment dialog =
-//                        ConfirmationDialogFragment.newInstance(sSearchRecentSuggestions);
-//                dialog.show(getFragmentManager(), "Clear History");
 
                 DialogFragment dialog = new ConfirmationDialogFragment();
                 dialog.show(getFragmentManager(), "Clear History");
@@ -313,7 +236,6 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
         @Override
         protected void onPostExecute(List<Artist> artists) {
 
-            // mArtistsAdapter.clear();
             // hide the progressbar
             mProgressBar.setVisibility(View.GONE);
 
@@ -379,11 +301,7 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
                 else {
                     Log.i(LOG_TAG, "Track number: " + tracks.size());
 
-                    //Bundle bundle = new Bundle();
-                    //bundle.putParcelableArrayList(EXTRA_TRACK_RESULTS, (ArrayList<? extends Parcelable>) tracks);
-
                     Intent intent = new Intent(getActivity(), TracksActivity.class);
-                    //intent.putExtras(bundle);
                     intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS,
                             (ArrayList<? extends Parcelable>) tracks);
                     startActivity(intent);
@@ -429,5 +347,6 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
             return builder.create();
         }
     }
+
 
 }

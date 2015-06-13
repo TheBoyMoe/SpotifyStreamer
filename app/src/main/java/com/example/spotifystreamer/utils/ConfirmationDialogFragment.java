@@ -18,35 +18,8 @@ import com.example.spotifystreamer.R;
 
 public class ConfirmationDialogFragment extends DialogFragment {
 
-    //private static final String EXTRA_RECENT_SUGGESTION =
-           // "com.example.spotifystreamer.utils.ConfirmationDialogFragment.RecentSuggestion";
-    //private SearchRecentSuggestions mSearchRecentSuggestions;
-
     public ConfirmationDialogFragment() {}
 
-    /**
-     * PASSING A PARAMETER TO A FRAGMENT ON INSTANTIATION USING ARGUMENTS
-     */
-
-//    public static ConfirmationDialogFragment newInstance(SearchRecentSuggestions suggestions) {
-//
-//        Bundle bundle = new Bundle();
-//        bundle.putSerializable(EXTRA_RECENT_SUGGESTION, (Serializable) suggestions);
-//
-//        ConfirmationDialogFragment fragment = new ConfirmationDialogFragment();
-//        fragment.setArguments(bundle);
-//
-//        return fragment;
-//    }
-//
-//
-//    @Override
-//    public void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//
-//        mSearchRecentSuggestions =
-//                (SearchRecentSuggestions) getArguments().getSerializable(EXTRA_RECENT_SUGGESTION);
-//    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -57,7 +30,6 @@ public class ConfirmationDialogFragment extends DialogFragment {
                                                     new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        //mSearchRecentSuggestions.clearHistory();
                         Utils.showToast(getActivity(), "Search history cleared");
                     }
                 })
