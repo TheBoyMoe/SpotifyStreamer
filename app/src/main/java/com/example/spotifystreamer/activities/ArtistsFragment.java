@@ -1,7 +1,10 @@
 package com.example.spotifystreamer.activities;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -9,6 +12,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -19,8 +23,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.example.spotifystreamer.R;
@@ -55,12 +57,12 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     //private final String BUNDLE_LISTVIEW_STATE = "saved list view state";
 
     private ListView mListView;
-    private EditText mEditText;
-    private ImageButton mButton;
+    // private EditText mEditText;
+    // private ImageButton mButton;
     private ArtistsArrayAdapter mArtistsAdapter;
     private List<Artist> mArtists;
     private SearchView mSearchView;
-    private SearchRecentSuggestions mSearchRecentSuggestions;
+    private static SearchRecentSuggestions sSearchRecentSuggestions;
     private MenuItem mSearchMenuItem;
 
     public ArtistsFragment() { }
@@ -211,23 +213,24 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
         Utils.hideKeyboard(getActivity(), mSearchView.getWindowToken());
 
         // close the search menu item
-        //if(mSearchMenuItem.isVisible())
-            mSearchMenuItem.collapseActionView();
+        mSearchMenuItem.collapseActionView();
 
         // save the search query to the RecentSuggestionsProvider
-        mSearchRecentSuggestions = new SearchRecentSuggestions(getActivity(),
+        sSearchRecentSuggestions = new SearchRecentSuggestions(getActivity(),
                 QuerySuggestionProvider.AUTHORITY, QuerySuggestionProvider.MODE);
-        mSearchRecentSuggestions.saveRecentQuery(query, null);
+        sSearchRecentSuggestions.saveRecentQuery(query, null);
 
+        // instantiate and invoke the AsyncTask to download the search results
+        new SearchQueryTask().execute(query);
 
+//        if(query.equals("")) {
+//            Log.d(LOG_TAG, "No query submitted");
+//            Utils.showToast(getActivity(), "Enter search term(s)");
+//        } else {
+//            // instantiate and invoke the AsyncTask to download the search results
+//            new SearchQueryTask().execute(query);
+//        }
 
-        if(query.equals("")) {
-            Log.d(LOG_TAG, "No query submitted");
-            Utils.showToast(getActivity(), "Enter search term(s)");
-        } else {
-            // instantiate and invoke the AsyncTask to download the search results
-            new SearchQueryTask().execute(query);
-        }
         return true;
     }
 
@@ -241,11 +244,17 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     public boolean onOptionsItemSelected(MenuItem item) {
 
         if(item.getItemId() == R.id.action_delete) {
-            if(mSearchRecentSuggestions != null) {
-                mSearchRecentSuggestions.clearHistory();
-                Utils.showToast(getActivity(), "Clearing search history saved to device");
+
+            if(sSearchRecentSuggestions != null) {
+//                ConfirmationDialogFragment dialog =
+//                        ConfirmationDialogFragment.newInstance(sSearchRecentSuggestions);
+//                dialog.show(getFragmentManager(), "Clear History");
+
+                DialogFragment dialog = new ConfirmationDialogFragment();
+                dialog.show(getFragmentManager(), "Clear History");
+
             } else {
-                Utils.showToast(getActivity(), "Cache clear, nothing to delete ");
+                Utils.showToast(getActivity(), "No history saved");
             }
 
         }
@@ -373,5 +382,35 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     }
 
 
+
+    public static class ConfirmationDialogFragment extends DialogFragment {
+
+        public ConfirmationDialogFragment() {}
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.confirmation_dialog_message)
+                    .setPositiveButton(R.string.confirmation_dialog_positive_button,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    sSearchRecentSuggestions.clearHistory();
+                                    sSearchRecentSuggestions = null;
+                                    Utils.showToast(getActivity(), "Search history cleared");
+                                }
+                            })
+                    .setNegativeButton(R.string.confirmation_dialog_negative_button,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Utils.showToast(getActivity(), "Action cancelled");
+                                }
+                            });
+
+            return builder.create();
+        }
+    }
 
 }

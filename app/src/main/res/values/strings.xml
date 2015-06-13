@@ -9,4 +9,7 @@
     <string name="pref_results_returned_title">Number of results returned</string>
     <string name="pref_results_returned_summary">Select number of search results returned, max 50</string>
     <string name="action_search_title">Search Spotify</string>
+    <string name="confirmation_dialog_message">Are you sure you want clear your search history?</string>
+    <string name="confirmation_dialog_positive_button">OK</string>
+    <string name="confirmation_dialog_negative_button">Cancel</string>
 </resources>
