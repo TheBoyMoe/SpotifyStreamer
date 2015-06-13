@@ -341,7 +341,6 @@ public class Utils {
 
 
 
-
     // AsyncTask responsible for downloading Image Thumbnails
     public static class DownloadImageTask extends AsyncTask<Void, Void, Bitmap> {
 
@@ -397,7 +396,6 @@ public class Utils {
         }
 
     }
-
 
 
 

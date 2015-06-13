@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Track;
-import com.example.spotifystreamer.utils.Utils;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -50,10 +50,20 @@ public class TracksArrayAdapter extends ArrayAdapter<Track>{
         // download and display the thumbnail image
         String url = track.getThumbnailUrl();
 
-        if(url != null && !(url.equals("no image found")))
-            new Utils.DownloadImageTask(iv, url).execute();
-        else
-            iv.setImageResource(R.drawable.placeholder);
+//        if(url != null && !(url.equals("no image found")))
+//            new Utils.DownloadImageTask(iv, url).execute();
+//        else
+//            iv.setImageResource(R.drawable.placeholder);
+
+
+        // Use Square's Picasso plugin to fetch and display the image
+        Picasso.with(getContext())
+                .load(url)
+                .resize(80, 80)
+                .centerCrop()
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder)
+                .into(iv);
 
         // set the artist name on the text view
         ttv.setText(track.getTrackTitle());
