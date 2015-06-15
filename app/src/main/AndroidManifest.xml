@@ -42,6 +42,16 @@
                 android:value=".activities.ArtistsActivity" />
         </activity>
 
+
+        <activity
+            android:name=".activities.TrackPlayerActivity"
+            android:parentActivityName=".activities.TracksActivity"
+            android:label="@string/track_media_player_title" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.TracksActivity" />
+        </activity>
+
         <provider
             android:name="com.example.spotifystreamer.model.QuerySuggestionProvider"
             android:authorities="com.example.spotifystreamer.model.QuerySuggestionProvider"/>

@@ -1,12 +1,13 @@
 package com.example.spotifystreamer.activities;
 
+
 import android.os.Bundle;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.utils.BaseActivity;
 
+public class TrackPlayerActivity  extends BaseActivity{
 
-public class TracksActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -14,7 +15,7 @@ public class TracksActivity extends BaseActivity {
 
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new TracksFragment())
+                    .add(R.id.container, new TrackPlayerFragment())
                     .commit();
         }
 
@@ -22,5 +23,6 @@ public class TracksActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true); // add the up 'home' arrow
 
     }
+
 
 }

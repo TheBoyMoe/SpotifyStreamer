@@ -332,7 +332,6 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
                     }
                 });
 
-gi
             }
 
             @Override
