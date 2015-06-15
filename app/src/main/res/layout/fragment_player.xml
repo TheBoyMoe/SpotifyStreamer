@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="@dimen/dimen_large"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <TextView
+        android:id="@+id/text_view_artist_name"
+        android:gravity="center_horizontal"
+        android:text="Frank Sinatra"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
+    <TextView
+        android:id="@+id/text_view_album_title"
+        android:gravity="center_horizontal"
+        android:text="The Essential Frank Sinatra"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
+    <ImageView
+        android:id="@+id/image_view_album_cover"
+        android:src="@drawable/placeholder"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="320dp"
+        android:layout_height="320dp"/>
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <ImageButton
+            android:id="@+id/image_button_prev_track"
+            android:src="@drawable/ic_media_previous"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+        <ImageButton
+            android:id="@+id/image_button_play_pause"
+            android:src="@drawable/ic_media_play"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+        <ImageButton
+            android:id="@+id/image_button_next_track"
+            android:src="@drawable/ic_media_next"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+
+    </RelativeLayout>
+
+
+</LinearLayout>
