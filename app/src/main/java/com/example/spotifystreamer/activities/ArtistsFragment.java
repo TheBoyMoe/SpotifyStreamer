@@ -1,5 +1,10 @@
 package com.example.spotifystreamer.activities;
 
+/**
+ * Thanks to user henry_27571687391820 for Callbacks fix
+ * http://discussions.udacity.com/t/asynctask-vs-callbacks/21223
+ */
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.SearchManager;
@@ -7,7 +12,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -34,7 +38,19 @@ import com.example.spotifystreamer.utils.Utils;
 import com.example.spotifystreamer.view.ArtistsArrayAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.AlbumSimple;
+import kaaes.spotify.webapi.android.models.ArtistsPager;
+import kaaes.spotify.webapi.android.models.Image;
+import kaaes.spotify.webapi.android.models.Tracks;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 /**
@@ -47,7 +63,7 @@ import java.util.List;
 public class ArtistsFragment extends Fragment implements  SearchView.OnQueryTextListener{
 
     private static final String LOG_TAG = ArtistsFragment.class.getSimpleName();
-    private final boolean L = true;
+    private final boolean L = false;
 
     private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
     private final String PREFS_RESULTS_RETURNED = "pref_key_result_returned";
@@ -56,10 +72,17 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     private ListView mListView;
     private ArtistsArrayAdapter mArtistsAdapter;
     private List<Artist> mArtists;
+    private List<Track> mTracks;
     private SearchView mSearchView;
     private static SearchRecentSuggestions sSearchRecentSuggestions;
     private MenuItem mSearchMenuItem;
     private ProgressBar mProgressBar;
+    private SpotifyApi mApi;
+    private SpotifyService mSpotifyService;
+    private String mCountry;
+    private String mLimit;
+    private Map<String, Object> mOptions;
+
 
     public ArtistsFragment() { }
 
@@ -68,7 +91,15 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // instantiate the various collections used
         mArtists = new ArrayList<>();
+        mTracks = new ArrayList<>();
+        mOptions = new HashMap<>();
+
+        // instantiate the Spotify Service Wrapper
+        mApi = new SpotifyApi();
+        mSpotifyService = mApi.getService();
+
         setRetainInstance(true); // ensure the fragment outlives device rotation
         setHasOptionsMenu(true); // add the search menu item
 
@@ -91,20 +122,84 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
 
                 // retrieve id & name of the particular artist & add as an extra to the intent
                 Artist artist = mArtistsAdapter.getItem(position);
-                String artistName = artist.getName();
-                String artistId = artist.getId();
+                final String artistName = artist.getName();
+                final String artistId = artist.getId();
 
-                // retrieve user preferences from SharedPreferences
-                SharedPreferences prefs =
-                        PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-                String country = prefs.getString(PREF_COUNTRY_KEY, getActivity().getString(R.string.pref_country_code_default));
+                // clear the ArrayList pf previous results
+                mTracks.clear();
 
-                // execute track download
-                new ArtistQueryTask(artistName, artistId, country).execute();
+                // set the Search Options
+                mOptions.clear();
+                mOptions.put("country", mCountry);
+
+                // download the artists top ten tracks
+                mSpotifyService.getArtistTopTrack(artistId, mOptions, new Callback<Tracks>() {
+                    @Override
+                    public void success(final Tracks tracks, Response response) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                List<kaaes.spotify.webapi.android.models.Track> list = tracks.tracks;
+                                if(L) Log.i(LOG_TAG, "Number of returned results: " + list.size());
+                                for (int i = 0; i < list.size(); i++) {
+                                    kaaes.spotify.webapi.android.models.Track track = list.get(i);
+                                    String trackTitle = track.name;
+                                    String previewUrl = track.preview_url;
+                                    String imageUrl = null, thumbnailUrl = null;
+
+                                    // retrieve album title & album images from the SimpleAlbum object
+                                    AlbumSimple album = track.album;
+                                    String albumTitle = album.name;
+                                    List<Image> imageList = album.images;
+                                    for (int j = 0; j < imageList.size(); j++) {
+                                        Image img = imageList.get(j);
+                                        if (img.width >= 200 && img.width < 400) {
+                                            thumbnailUrl = img.url;
+                                            continue;
+                                        }
+                                        if (img.width >= 600) {
+                                            imageUrl = img.url;
+                                        }
+                                    }
+                                    // instantiate the app's Track object
+                                    Track retrievedTrack = new Track(artistId, artistName,
+                                            trackTitle, albumTitle, imageUrl, thumbnailUrl, previewUrl);
+                                    if (L) Log.i(LOG_TAG, retrievedTrack.toString() + ", imageUrl: "
+                                            + imageUrl + ", thumbnailUrl: " + thumbnailUrl);
+
+                                    mTracks.add(retrievedTrack);
+                                }
+
+                                // if one or more tracks were found, display the results in a new activity
+                                if(mTracks.size() > 0) {
+                                    Intent intent = new Intent(getActivity(), TracksActivity.class);
+                                    intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS,
+                                            (ArrayList<? extends Parcelable>) mTracks);
+                                    startActivity(intent);
+                                } else {
+                                    Log.d(LOG_TAG, "No tracks found, array size: " + mTracks.size());
+                                    Utils.showToast(getActivity(), "Track list not available");
+                                }
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void failure(final RetrofitError error) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Log.d(LOG_TAG, "Error message: " + error.getUrl());
+                                Utils.showToast(getActivity(), "Track list not available or invalid country code");
+                            }
+                        });
+                    }
+                });
+
 
             }
         });
-
 
 
         if(savedInstanceState == null) {
@@ -121,20 +216,36 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     }
 
 
+    @Override
+    public void onStart() {
+        super.onStart();
 
-    // handle search query's submitted via the SearchView
+        // retrieve user preferences from SharedPreferences
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        mCountry = prefs.getString(PREF_COUNTRY_KEY,
+                getActivity().getString(R.string.pref_country_code_default));
+        if(mCountry.equals(""))
+            mCountry = getActivity().getString(R.string.pref_country_code_default);
+        mLimit = prefs.getString(PREFS_RESULTS_RETURNED,
+                getActivity().getString(R.string.pref_results_returned_default));
+    }
+
+
+    // Add SearchView to the ToolBar
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
 
         inflater.inflate(R.menu.menu_search, menu);
 
-        // get the SearchView and set the searchable configuration
+        // instantiate the SearchView and set the searchable configuration
         SearchManager mgr = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
         mSearchView.setSearchableInfo(mgr.getSearchableInfo(getActivity().getComponentName()));
         mSearchView.setSubmitButtonEnabled(true);
         mSearchView.setOnQueryTextListener(this);
+        mSearchView.setQueryRefinementEnabled(true);
 
         // cache a reference to the SearchMenuItem
         mSearchMenuItem = menu.findItem(R.id.action_search);
@@ -142,9 +253,9 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     }
 
 
-    // submit search to Spotify
+    // submit artist search through the Spotify Web API Wrapper
     @Override
-    public boolean onQueryTextSubmit(String query) {
+    public boolean onQueryTextSubmit(final String query) {
 
         // hide softkeyboard upon submitting search
         Utils.hideKeyboard(getActivity(), mSearchView.getWindowToken());
@@ -157,18 +268,108 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
                 QuerySuggestionProvider.AUTHORITY, QuerySuggestionProvider.MODE);
         sSearchRecentSuggestions.saveRecentQuery(query, null);
 
-        // instantiate and invoke the AsyncTask to download the search results
-        new SearchQueryTask().execute(query);
+        // set Artist top-track options
+        mOptions.clear();
+        mOptions.put("limit", mLimit);
+        mOptions.put("country", mCountry);
+
+        // clear the listview and display the progress spinner
+        if(!mArtistsAdapter.isEmpty())
+            mArtistsAdapter.clear();
+        mProgressBar.setVisibility(View.VISIBLE);
+
+        // execute the search on a background thread
+        mSpotifyService.searchArtists(query, mOptions, new Callback<ArtistsPager>() {
+
+            @Override
+            public void success(final ArtistsPager artistsPager, final Response response) {
+
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (L) Log.i(LOG_TAG, "Search for query: " + query
+                                + ", returned records: " + artistsPager.artists.total);
+
+                        if (artistsPager.artists.total > 0) {
+                            // retrieve a list of artist objects
+                            List<kaaes.spotify.webapi.android.models.Artist> artistList =
+                                    artistsPager.artists.items;
+
+                            for (int i = 0; i < artistList.size(); i++) {
+                                kaaes.spotify.webapi.android.models.Artist artist = artistList.get(i);
+                                String name = artist.name;
+                                String id = artist.id;
+                                if (L) {
+                                    String str = String.format("Artist name: %s, id: %s", name, id);
+                                    Log.i(LOG_TAG, str);
+                                }
+
+                                // retrieve an appropriately sized image for the artist thumbnail,
+                                // between 200 and 400px in width, and cache it's url
+                                String imageUrl = null;
+                                List<Image> imageList = artist.images;
+                                for (int j = 0; j < imageList.size(); j++) {
+                                    Image img = imageList.get(j);
+                                    if (img.width >= 200 && img.width < 400) {
+                                        imageUrl = img.url;
+                                    }
+                                }
+
+                                // instantiate app artist object and populate the Artist ArrayList
+                                Artist retrievedArtist = new Artist(id, name, imageUrl);
+                                mArtists.add(retrievedArtist);
+                            }
+
+                            //update ArtistAdapter and ListView
+                            mArtistsAdapter.updateView(mArtists);
+
+                        } else {
+                            // No results found, http status code returned 200
+                            Utils.showToast(getActivity(), "No results found for " + query);
+                        }
+                        // hide the progressbar
+                        mProgressBar.setVisibility(View.GONE);
+                    }
+                });
+
+gi
+            }
+
+            @Override
+            public void failure(final RetrofitError error) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (error.getResponse() != null) {
+                            // server problems & 404 not found errors
+                            Log.d(LOG_TAG, "Error executing artist search, status code : "
+                                    + error.getResponse().getStatus() + ", error message: " + error.getMessage());
+                            Utils.showToast(getActivity(), "No results found for " + query);
+                        } else {
+                            // failure due to network problem
+                            Utils.showToast(getActivity(), "Network error, check connection");
+                        }
+                        // hide the progressbar
+                        mProgressBar.setVisibility(View.GONE);
+                    }
+                });
+
+            }
+
+        });
 
         return true;
     }
 
+
     @Override
     public boolean onQueryTextChange(String newText) {
+        // not used - req'd by SearchView implementation
         return false;
     }
 
 
+    // Clear the search cache from the device
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -188,136 +389,7 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     }
 
 
-
-
-    // Search the Spotify site for the submitted artist name
-    private class SearchQueryTask extends AsyncTask<String, Void, List<Artist>> {
-
-
-        // display the progress indicator while the search/download occurs
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-            // clear the listview and display the progress spinner
-            if(!mArtistsAdapter.isEmpty())
-                mArtistsAdapter.clear();
-            mProgressBar.setVisibility(View.VISIBLE);
-        }
-
-        // execute the search, download & parse the json results
-        @Override
-        protected List<Artist> doInBackground(String... params) {
-
-           List<Artist> artists = null;
-
-            if(params.length == 0) {
-                return null;
-            }
-
-            // retrieve the number of results returned from SharedPreferences
-            SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-            String limit = prefs.getString(PREFS_RESULTS_RETURNED,
-                                getActivity().getString(R.string.pref_results_returned_default));
-
-            // execute the Artist query & download the results
-            String jsonStringResult = Utils.downloadJSONSearchResults(params[0], limit);
-
-            // parse the downloaded Json
-            if (jsonStringResult != null)
-                artists = Utils.parseJSONSearchResults(jsonStringResult);
-
-            return artists;
-
-        }
-
-
-        @Override
-        protected void onPostExecute(List<Artist> artists) {
-
-            // hide the progressbar
-            mProgressBar.setVisibility(View.GONE);
-
-            if(artists != null) {
-
-                // search returns an empty array
-                if(artists.size() == 0) {
-                    Utils.showToast(getActivity(), "No results found");
-
-                } else {
-                    // pass the results to the array adapter and update the view
-                    // notifyDataSetChanged() called
-                    mArtistsAdapter.updateView(artists);
-                }
-
-            } else {
-                Utils.showToast(getActivity(), "Network error");
-            }
-
-        }
-    }
-
-
-    // download the artist's top-ten tracks
-    private class ArtistQueryTask extends AsyncTask<Void , Void, List<Track>> {
-
-        String artistName;
-        String artistId;
-        String countryCode;
-
-        public ArtistQueryTask(String name, String id, String country) {
-            artistName = name;
-            artistId = id;
-            countryCode = country;
-        }
-
-
-        @Override
-        protected List<Track> doInBackground(Void... voids) {
-
-            String jsonResults = Utils.downloadJSONArtistResults(artistId, countryCode);
-
-            List<Track> trackList = null;
-            if(jsonResults != null)
-                trackList = Utils.parseJSONTrackResults(jsonResults, artistName, artistId);
-
-            return trackList;
-        }
-
-
-        @Override
-        protected void onPostExecute(List<Track> tracks) {
-
-            if(tracks!= null) {
-
-                if(tracks.size() == 0) {
-                    Utils.showToast(getActivity(), "No results found");
-                }
-                else if(tracks.size() == 1 && tracks.get(0).getTrackTitle().equals("Unavailable country")) {
-                    Utils.showToast(getActivity(), "Album unavailable in the selected country");
-                }
-
-                else {
-                    Log.i(LOG_TAG, "Track number: " + tracks.size());
-
-                    Intent intent = new Intent(getActivity(), TracksActivity.class);
-                    intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS,
-                            (ArrayList<? extends Parcelable>) tracks);
-                    startActivity(intent);
-
-                }
-
-            } else {
-                Utils.showToast(getActivity(), "Network error");
-            }
-
-        }
-
-    }
-
-
-
+    // Search cache confirmation dialog
     public static class ConfirmationDialogFragment extends DialogFragment {
 
         public ConfirmationDialogFragment() {}
@@ -347,6 +419,9 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
             return builder.create();
         }
     }
+
+
+
 
 
 }

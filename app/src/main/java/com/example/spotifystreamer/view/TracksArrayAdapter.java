@@ -39,7 +39,7 @@ public class TracksArrayAdapter extends ArrayAdapter<Track>{
         // inflate a new view if there isn't one available to be recycled
         if(convertView == null) {
             convertView = LayoutInflater.from(getContext())
-                    .inflate(R.layout.list_view_item_track, parent, false);
+                    .inflate(R.layout.list_view_item_track_two, parent, false);
         }
 
         // cache the view's elements
@@ -49,12 +49,6 @@ public class TracksArrayAdapter extends ArrayAdapter<Track>{
 
         // download and display the thumbnail image
         String url = track.getThumbnailUrl();
-
-//        if(url != null && !(url.equals("no image found")))
-//            new Utils.DownloadImageTask(iv, url).execute();
-//        else
-//            iv.setImageResource(R.drawable.placeholder);
-
 
         // Use Square's Picasso plugin to fetch and display the image
         Picasso.with(getContext())

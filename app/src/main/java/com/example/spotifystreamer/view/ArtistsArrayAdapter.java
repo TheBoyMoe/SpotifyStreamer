@@ -48,11 +48,7 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
         TextView tv = (TextView) convertView.findViewById(R.id.text_view_artist_name);
 
         // download and display the thumbnail image
-        String url = artist.getUrl();
-//        if(url != null && !(url.equals("no image found")))
-//            new Utils.DownloadImageTask(iv, url).execute();
-//        else
-//            iv.setImageResource(R.drawable.placeholder);
+        String url = artist.getImageUrl();
 
         // Use Square's Picasso plugin to fetch and display the image
         Picasso.with(getContext())

@@ -7,7 +7,9 @@ package com.example.spotifystreamer.activities;
  */
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -30,12 +32,13 @@ public class TracksFragment extends Fragment {
 
     private static final String LOG_TAG = TracksFragment.class.getSimpleName();
     private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
+    private final String PREF_COUNTRY_KEY = "pref_key_country_code";
 
     private TracksArrayAdapter mTracksAdapter;
     private ListView mListView;
     private List<Track> mTrackList;
     private ProgressBar mProgressBar;
-
+    private String mCountry;
 
     public TracksFragment() { }
 
@@ -56,6 +59,15 @@ public class TracksFragment extends Fragment {
         mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
         mProgressBar.setVisibility(View.GONE);
 
+        // retrieve country listing from shared preferences
+        SharedPreferences prefs =
+                PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        mCountry = prefs.getString(PREF_COUNTRY_KEY,
+                getActivity().getString(R.string.pref_country_code_default));
+        if(mCountry.equals(""))
+            mCountry = getActivity().getString(R.string.pref_country_code_default);
+
+
         // retrieve the intent extra
         Intent intent = getActivity().getIntent();
         mTrackList = intent.getParcelableArrayListExtra(EXTRA_TRACK_RESULTS);
@@ -67,6 +79,8 @@ public class TracksFragment extends Fragment {
             // instantiate the ArrayAdapter and bind it to the ListView
             mTracksAdapter = new TracksArrayAdapter(getActivity(), mTrackList);
             mListView.setAdapter(mTracksAdapter);
+
+            Utils.showToast(getActivity(), "Track list for " + mCountry.toUpperCase());
 
         }
 
@@ -85,5 +99,12 @@ public class TracksFragment extends Fragment {
         return view;
     }
 
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+
+    }
 
 }
