@@ -55,8 +55,8 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
                 .load(url)
                 .resize(80, 80)
                 .centerCrop()
-                .placeholder(R.drawable.placeholder)
-                .error(R.drawable.placeholder)
+                .placeholder(R.drawable.error_placeholder)
+                .error(R.drawable.error_placeholder)
                 .into(iv);
 
         // set the artist name on the text view

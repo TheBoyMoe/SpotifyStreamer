@@ -90,9 +90,14 @@ public class TracksFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Track track = mTracksAdapter.getItem(position);
-                String trackTitle = track.getTrackTitle();
-                String albumTitle = track.getAlbumTitle();
-                Utils.showToast(getActivity(), trackTitle + " from " + albumTitle);
+                //String trackTitle = track.getTrackTitle();
+                //String albumTitle = track.getAlbumTitle();
+                //Utils.showToast(getActivity(), trackTitle + " from " + albumTitle);
+                //startActivity(new Intent(getActivity(), TrackPlayerActivity.class));
+                Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
+                intent.putExtra(EXTRA_TRACK_RESULTS, track);
+                startActivity(intent);
+
             }
         });
 

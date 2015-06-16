@@ -26,9 +26,24 @@
         android:id="@+id/image_view_album_cover"
         android:src="@drawable/placeholder"
         android:layout_gravity="center_horizontal"
-        android:layout_width="320dp"
-        android:layout_height="320dp"/>
+        android:layout_width="260dp"
+        android:layout_height="260dp"/>
 
+
+    <TextView
+        android:id="@+id/text_view_track_title"
+        android:text="Come Fly With Me"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+
+    <SeekBar
+        android:id="@+id/seek_bar"
+        android:layout_marginTop="@dimen/dimen_normal"
+        android:layout_marginBottom="@dimen/dimen_normal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 
     <RelativeLayout

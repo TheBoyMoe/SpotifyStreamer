@@ -55,6 +55,14 @@ public class Track implements Parcelable {
         return mThumbnailUrl;
     }
 
+    public String getImageUrl() {
+        return mImageUrl;
+    }
+
+    public String getPreviewUrl() {
+        return mPreviewUrl;
+    }
+
     public String getArtistId() {
         return mArtistId;
     }
