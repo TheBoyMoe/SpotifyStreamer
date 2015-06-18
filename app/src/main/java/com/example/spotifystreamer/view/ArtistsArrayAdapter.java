@@ -53,10 +53,10 @@ public class ArtistsArrayAdapter extends ArrayAdapter<Artist>{
         // Use Square's Picasso plugin to fetch and display the image
         Picasso.with(getContext())
                 .load(url)
-                .resize(80, 80)
+                .resize(120, 120)
                 .centerCrop()
-                .placeholder(R.drawable.error_placeholder)
-                .error(R.drawable.error_placeholder)
+                .placeholder(R.drawable.dark_placeholder)
+                .error(R.drawable.dark_placeholder)
                 .into(iv);
 
         // set the artist name on the text view

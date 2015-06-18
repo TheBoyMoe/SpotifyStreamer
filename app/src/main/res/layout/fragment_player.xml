@@ -24,7 +24,7 @@
 
     <ImageView
         android:id="@+id/image_view_album_cover"
-        android:src="@drawable/placeholder"
+        android:src="@drawable/dark_placeholder"
         android:layout_gravity="center_horizontal"
         android:layout_width="260dp"
         android:layout_height="260dp"/>

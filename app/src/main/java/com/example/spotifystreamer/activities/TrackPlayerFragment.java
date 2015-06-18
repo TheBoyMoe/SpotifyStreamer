@@ -253,8 +253,8 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
                 .load(track.getImageUrl())
                 .resize(320, 320)
                 .centerCrop()
-                .placeholder(R.drawable.bw_placeholder)
-                .error(R.drawable.bw_placeholder)
+                .placeholder(R.drawable.dark_placeholder)
+                .error(R.drawable.dark_placeholder)
                 .into(mAlbumCoverImageView);
     }
 

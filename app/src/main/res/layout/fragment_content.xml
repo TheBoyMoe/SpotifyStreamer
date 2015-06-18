@@ -4,8 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="@dimen/dimen_normal"
-    android:paddingBottom="@dimen/dimen_normal"
+    android:background="@color/applicationSecondaryColor"
+    android:paddingTop="@dimen/dimen_xsmall"
+    android:paddingBottom="@dimen/dimen_xsmall"
     tools:context=".MainActivityFragment">
 
 

@@ -1,27 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="@dimen/dimen_normal"
+    android:padding="@dimen/dimen_xxsmall"
     android:orientation="horizontal"
     android:layout_height="wrap_content"
     android:layout_width="match_parent">
 
 
+
+    <RelativeLayout
+        android:layout_width="@dimen/dimen_thumbnail"
+        android:layout_height="@dimen/dimen_thumbnail">
+
+
         <ImageView
             android:id="@+id/image_view_artist_thumbnail"
             android:scaleType="centerCrop"
-            android:src="@drawable/placeholder"
-            android:layout_width="@dimen/dimen_thumbnail"
-            android:layout_height="@dimen/dimen_thumbnail"/>
-
-
-        <TextView
-            android:id="@+id/text_view_artist_name"
-            android:paddingLeft="@dimen/dimen_normal"
-            android:layout_gravity="center_vertical"
+            android:src="@drawable/dark_placeholder"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"/>
 
-        </TextView>
+
+        <!-- overlay -->
+        <LinearLayout
+            android:layout_alignParentTop="true"
+            android:background="@drawable/thumbnail_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/text_view_artist_name"
+        android:paddingLeft="@dimen/dimen_small"
+        android:paddingRight="@dimen/dimen_normal"
+        android:textColor="@color/applicationSecondaryTextColor"
+        android:layout_gravity="center_vertical"
+        android:gravity="center_horizontal"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content">
+
+    </TextView>
 
 
 </LinearLayout>

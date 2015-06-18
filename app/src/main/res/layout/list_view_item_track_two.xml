@@ -1,39 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
-    android:padding="@dimen/dimen_normal"
+    android:background="@color/applicationSecondaryColor"
+    android:padding="@dimen/dimen_xxsmall"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
 
-    <ImageView
-        android:id="@+id/image_view_track_thumbnail"
-        android:scaleType="centerCrop"
-        android:src="@drawable/placeholder"
+    <RelativeLayout
         android:layout_width="@dimen/dimen_thumbnail"
-        android:layout_height="@dimen/dimen_thumbnail"/>
+        android:layout_height="@dimen/dimen_thumbnail">
+
+
+        <ImageView
+            android:id="@+id/image_view_track_thumbnail"
+            android:scaleType="centerCrop"
+            android:src="@drawable/dark_placeholder"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <!-- overlay -->
+        <LinearLayout
+            android:layout_alignParentTop="true"
+            android:background="@drawable/thumbnail_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+
+    </RelativeLayout>
+
+
 
 
     <LinearLayout
         android:orientation="vertical"
-        android:paddingStart="@dimen/dimen_normal"
-        android:paddingLeft="@dimen/dimen_normal"
+        android:paddingLeft="@dimen/dimen_small"
+        android:paddingRight="@dimen/dimen_normal"
         android:layout_gravity="center_vertical"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/text_view_track_title"
-            android:layout_width="wrap_content"
-            android:text="track title"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dimen_xsmall"/>
+            android:layout_width="match_parent"
+            android:gravity="center_horizontal"
+            android:textColor="@color/applicationSecondaryTextColor"
+            android:layout_height="wrap_content"/>
 
 
         <TextView
             android:id="@+id/text_view_album_title"
-            android:layout_width="wrap_content"
-            android:text="album title"
+            android:layout_width="match_parent"
+            android:gravity="center_horizontal"
+            android:textColor="@color/applicationSecondaryTextColor"
             android:layout_height="wrap_content"/>
 
     </LinearLayout>

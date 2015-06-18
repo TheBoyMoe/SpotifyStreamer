@@ -3,6 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <dimen name="dimen_xxsmall">2dp</dimen>
     <dimen name="dimen_xsmall">4dp</dimen>
     <dimen name="dimen_small">8dp</dimen>
     <dimen name="dimen_normal">16dp</dimen>
@@ -12,6 +13,6 @@
     <dimen name="dimen_xxlarge">56dp</dimen>
 
     <!-- image sizes -->
-    <dimen name="dimen_thumbnail">80dp</dimen>
+    <dimen name="dimen_thumbnail">120dp</dimen>
 
 </resources>
