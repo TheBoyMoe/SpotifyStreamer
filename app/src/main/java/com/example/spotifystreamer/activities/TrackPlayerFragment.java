@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.spotifystreamer.R;
@@ -46,6 +47,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
     private TextView mAlbumTitleTextView;
     private TextView mTrackTitleTextView;
     private ImageView mAlbumCoverImageView;
+    private SeekBar mSeekBar;
     //private AudioPlayer mMediaPlayer;
     private int mCurrentPosition;
     private boolean mCompleted;
@@ -235,6 +237,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
         mAlbumTitleTextView = (TextView) view.findViewById(R.id.text_view_album_title);
         mTrackTitleTextView = (TextView) view.findViewById(R.id.text_view_track_title);
         mAlbumCoverImageView = (ImageView) view.findViewById(R.id.image_view_album_cover);
+        mSeekBar = (SeekBar) view.findViewById(R.id.seek_bar);
     }
 
 
@@ -248,7 +251,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
     private void initializeImageView(Track track) {
         Picasso.with(getActivity())
                 .load(track.getImageUrl())
-                .resize(260, 260)
+                .resize(320, 320)
                 .centerCrop()
                 .placeholder(R.drawable.bw_placeholder)
                 .error(R.drawable.bw_placeholder)

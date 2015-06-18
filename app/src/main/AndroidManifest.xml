@@ -48,6 +48,7 @@
         <activity
             android:name=".activities.TrackPlayerActivity"
             android:parentActivityName=".activities.TracksActivity"
+            android:screenOrientation="portrait"
             android:label="@string/track_media_player_title" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
