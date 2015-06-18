@@ -19,8 +19,11 @@ public class TrackPlayerActivity  extends BaseActivity{
                     .commit();
         }
 
-        if(getSupportActionBar() != null)
+        if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true); // add the up 'home' arrow
+            getSupportActionBar().setDisplayShowTitleEnabled(false); // disable toolbar title
+        }
+
 
     }
 

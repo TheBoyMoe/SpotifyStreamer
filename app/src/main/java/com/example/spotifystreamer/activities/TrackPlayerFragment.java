@@ -50,7 +50,6 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
     private int mCurrentPosition;
     private boolean mCompleted;
     //private int mDuration;
-
     private MediaPlayer mMediaPlayer;
 
     public TrackPlayerFragment() {}
@@ -65,7 +64,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_player, container, false);
+        View view = inflater.inflate(R.layout.fragment_player_two, container, false);
 
         // create references to each of the layout elements of interest
         cacheLayoutViews(view);
@@ -89,7 +88,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
                 if (isPlaying()) {
                     mCurrentPosition = getCurrentPosition();
                     pause();
-                    mPlayPauseButton.setImageResource(R.drawable.ic_media_play);
+                    mPlayPauseButton.setImageResource(R.drawable.ic_media_play_white);
                 }
 //                else if(mCompleted) {
 //                    // mediaplayer in the PlaybackCompleted state, start it again from the beginning
@@ -107,7 +106,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
                         // otherwise start from the beginning
                         play(track.getPreviewUrl());
                     }
-                    mPlayPauseButton.setImageResource(R.drawable.ic_media_pause);
+                    mPlayPauseButton.setImageResource(R.drawable.ic_media_pause_white);
                 }
 
             }
@@ -159,7 +158,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
                 //mCompleted = true;
                 stop();
                 mCurrentPosition = 0;
-                mPlayPauseButton.setImageResource(R.drawable.ic_media_play);
+                mPlayPauseButton.setImageResource(R.drawable.ic_media_play_white);
             }
         });
 
@@ -251,8 +250,8 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
                 .load(track.getImageUrl())
                 .resize(260, 260)
                 .centerCrop()
-                .placeholder(R.drawable.error_placeholder)
-                .error(R.drawable.error_placeholder)
+                .placeholder(R.drawable.bw_placeholder)
+                .error(R.drawable.bw_placeholder)
                 .into(mAlbumCoverImageView);
     }
 
