@@ -17,6 +17,7 @@ public class Track implements Parcelable {
     private String mImageUrl;
     private String mThumbnailUrl;
     private String mPreviewUrl;
+    private long mTrackDuration;
 
 
     public Track() {}
@@ -27,7 +28,8 @@ public class Track implements Parcelable {
                  String albumTitle,
                  String imageUrl,
                  String thumbnailUrl,
-                 String previewUrl) {
+                 String previewUrl,
+                 long trackDuration) {
 
         mArtistId = artistId;
         mArtistName = artistName;
@@ -36,6 +38,7 @@ public class Track implements Parcelable {
         mImageUrl = imageUrl;
         mThumbnailUrl = thumbnailUrl;
         mPreviewUrl = previewUrl;
+        mTrackDuration = trackDuration;
     }
 
 
@@ -63,6 +66,10 @@ public class Track implements Parcelable {
         return mPreviewUrl;
     }
 
+    public long getTrackDuration() {
+        return mTrackDuration;
+    }
+
     public String getArtistId() {
         return mArtistId;
     }
@@ -87,6 +94,7 @@ public class Track implements Parcelable {
         mImageUrl = in.readString();
         mThumbnailUrl = in.readString();
         mPreviewUrl = in.readString();
+        mTrackDuration = in.readLong();
     }
 
     @Override
@@ -103,6 +111,7 @@ public class Track implements Parcelable {
         dest.writeString(mImageUrl);
         dest.writeString(mThumbnailUrl);
         dest.writeString(mPreviewUrl);
+        dest.writeLong(mTrackDuration);
     }
 
     @SuppressWarnings("unused")

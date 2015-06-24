@@ -1,39 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:padding="@dimen/dimen_normal"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:background="@color/applicationSecondaryColor"
+    android:padding="@dimen/dimen_xxsmall"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
 
-    <ImageView
-        android:id="@+id/image_view_track_thumbnail"
-        android:scaleType="centerCrop"
-        android:src="@drawable/placeholder"
-        android:layout_alignParentLeft="true"
-        android:layout_marginRight="@dimen/dimen_normal"
+    <RelativeLayout
         android:layout_width="@dimen/dimen_thumbnail"
-        android:layout_height="@dimen/dimen_thumbnail"/>
+        android:layout_height="@dimen/dimen_thumbnail">
 
 
-    <TextView
-        android:id="@+id/text_view_track_title"
-        android:layout_width="wrap_content"
-        android:text="track title"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/image_view_track_thumbnail"
-        android:layout_marginTop="@dimen/dimen_xsmall"
-        android:layout_marginLeft="96dp"
-        android:layout_marginStart="96dp"/>
+        <ImageView
+            android:id="@+id/image_view_track_thumbnail"
+            android:scaleType="centerCrop"
+            android:src="@drawable/dark_placeholder"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <!-- overlay -->
+        <LinearLayout
+            android:layout_alignParentTop="true"
+            android:background="@drawable/thumbnail_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
 
-    <TextView
-        android:id="@+id/text_view_album_title"
-        android:layout_width="wrap_content"
-        android:text="album title"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/text_view_track_title"
-        android:layout_alignLeft="@id/text_view_track_title"
-        android:layout_alignStart="@id/text_view_track_title"/>
+    </RelativeLayout>
 
 
-</RelativeLayout>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/dimen_small"
+        android:paddingRight="@dimen/dimen_normal"
+        android:layout_gravity="center_vertical"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/text_view_track_title"
+            android:layout_width="match_parent"
+            android:gravity="center_horizontal"
+            android:textColor="@color/applicationSecondaryTextColor"
+            android:layout_height="wrap_content"/>
+
+
+        <TextView
+            android:id="@+id/text_view_album_title"
+            android:layout_width="match_parent"
+            android:gravity="center_horizontal"
+            android:textColor="@color/applicationSecondaryTextColor"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

@@ -145,6 +145,7 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
                                     kaaes.spotify.webapi.android.models.Track track = list.get(i);
                                     String trackTitle = track.name;
                                     String previewUrl = track.preview_url;
+                                    long trackDuration = track.duration_ms / 1000;
                                     String imageUrl = null, thumbnailUrl = null;
 
                                     // retrieve album title & album images from the SimpleAlbum object
@@ -162,10 +163,11 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
                                         }
                                     }
                                     // instantiate the app's Track object
-                                    Track retrievedTrack = new Track(artistId, artistName,
-                                            trackTitle, albumTitle, imageUrl, thumbnailUrl, previewUrl);
+                                    Track retrievedTrack = new Track(artistId, artistName, trackTitle,
+                                            albumTitle, imageUrl, thumbnailUrl, previewUrl, trackDuration);
                                     if (L) Log.i(LOG_TAG, retrievedTrack.toString() + ", imageUrl: "
-                                            + imageUrl + ", thumbnailUrl: " + thumbnailUrl);
+                                            + imageUrl + ", thumbnailUrl: " + thumbnailUrl
+                                            + ", track duration: " + trackDuration);
 
                                     mTracks.add(retrievedTrack);
                                 }

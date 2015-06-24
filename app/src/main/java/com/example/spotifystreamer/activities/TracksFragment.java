@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,9 +73,11 @@ public class TracksFragment extends Fragment {
         Intent intent = getActivity().getIntent();
         mTrackList = intent.getParcelableArrayListExtra(EXTRA_TRACK_RESULTS);
         if(mTrackList != null) {
+
             // add the Artist name as subtitle to the ToolBar
-            ((AppCompatActivity)getActivity()).getSupportActionBar()
-                    .setSubtitle(mTrackList.get(0).getArtistName());
+            ActionBar toolbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+            if(toolbar != null)
+                toolbar.setSubtitle(mTrackList.get(0).getArtistName());
 
             // instantiate the ArrayAdapter and bind it to the ListView
             mTracksAdapter = new TracksArrayAdapter(getActivity(), mTrackList);
@@ -90,10 +93,6 @@ public class TracksFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Track track = mTracksAdapter.getItem(position);
-                //String trackTitle = track.getTrackTitle();
-                //String albumTitle = track.getAlbumTitle();
-                //Utils.showToast(getActivity(), trackTitle + " from " + albumTitle);
-                //startActivity(new Intent(getActivity(), TrackPlayerActivity.class));
                 Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
                 intent.putExtra(EXTRA_TRACK_RESULTS, track);
                 startActivity(intent);

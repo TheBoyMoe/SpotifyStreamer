@@ -14,4 +14,5 @@
     <string name="confirmation_dialog_negative_button">Cancel</string>
     <string name="search_view_hint">Search Spotify</string>
     <string name="track_media_player_title">Media Player</string>
+    <string name="track_timer_initial_value">0:0</string>
 </resources>

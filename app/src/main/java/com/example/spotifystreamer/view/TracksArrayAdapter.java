@@ -39,7 +39,7 @@ public class TracksArrayAdapter extends ArrayAdapter<Track>{
         // inflate a new view if there isn't one available to be recycled
         if(convertView == null) {
             convertView = LayoutInflater.from(getContext())
-                    .inflate(R.layout.list_view_item_track_two, parent, false);
+                    .inflate(R.layout.list_view_item_track, parent, false);
         }
 
         // cache the view's elements
