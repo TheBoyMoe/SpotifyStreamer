@@ -21,6 +21,8 @@ import com.example.spotifystreamer.model.Track;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -49,8 +51,10 @@ import java.io.IOException;
 public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPreparedListener{
 
     private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
+    private final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
     private static final String LOG_TAG = TrackPlayerFragment.class.getSimpleName();
     private final boolean L = true;
+
 
     private ImageButton mPlayPauseButton;
     private ImageButton mPrevButton;
@@ -67,7 +71,9 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
     private MediaPlayer mMediaPlayer;
     private ProgressBar mProgressBar;
     private Handler mSeekHandler;
-
+    private List<Track> mTrackList;
+    private int mCurrentSelection;
+    private Track mCurrentTrack;
 
     public TrackPlayerFragment() {}
 
@@ -79,6 +85,8 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
         // used to update the SeekBar at 1 sec intervals
         mSeekHandler = new Handler();
 
+        mTrackList = new ArrayList<>();
+
     }
 
 
@@ -89,17 +97,21 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
         // create references to each of the layout elements of interest
         cacheLayoutViews(view);
 
-        // grab the track object bundled with the intent
+        // grab the track list and retrieve the selected track
         Intent intent = getActivity().getIntent();
-        final Track track = intent.getParcelableExtra(EXTRA_TRACK_RESULTS);
+        //final Track track = intent.getParcelableExtra(EXTRA_TRACK_RESULTS);
+
+        mTrackList = intent.getParcelableArrayListExtra(EXTRA_TRACK_RESULTS);
+        mCurrentSelection = intent.getIntExtra(EXTRA_TRACK_SELECTION, 0);
+        mCurrentTrack = mTrackList.get(mCurrentSelection);
 
         // use it to initialize the text and image views
-        initializeTextViews(track);
-        initializeImageView(track);
+        initializeTextViews(mCurrentTrack);
+        initializeImageView(mCurrentTrack);
         mProgressBar.setVisibility(View.INVISIBLE);
 
         // load & start track as soon as fragment loaded
-        play(track.getPreviewUrl());
+        play(mCurrentTrack.getPreviewUrl());
         mPlayPauseButton.setImageResource(R.drawable.ic_media_pause_white);
 
 
@@ -122,7 +134,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
                     if(mCurrentPosition > 0 && mMediaPlayer == null) {
                         if(L) Log.i(LOG_TAG, "First time through, position > 0 position at: "
                                 + mCurrentPosition + " Media Player: " + mMediaPlayer);
-                        play(track.getPreviewUrl());
+                        play(mCurrentTrack.getPreviewUrl());
                     } else
                     if(mCurrentPosition > 0) {
                         // paused track being re-started
@@ -135,7 +147,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
                         // first time through, position at zero
                         if(L) Log.i(LOG_TAG, "First time through, position should be zero, position: "
                                 + mCurrentPosition + " Media Player: " + mMediaPlayer);
-                        play(track.getPreviewUrl());
+                        play(mCurrentTrack.getPreviewUrl());
                     }
 
                     mPlayPauseButton.setImageResource(R.drawable.ic_media_pause_white);
@@ -183,9 +195,63 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
 
         });
 
+
+        // configure Next/Prev Buttons
+        mNextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mCurrentSelection < mTrackList.size() - 1) {
+                    mCurrentSelection++;
+                    updatePlayer();
+                }
+
+                if(mCurrentSelection == mTrackList.size() - 1) {
+                    mNextButton.setVisibility(View.INVISIBLE);
+                }
+
+                // re-display the Prev Button
+                if(mCurrentSelection == 1) {
+                    mPrevButton.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+
+        mPrevButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(mCurrentSelection > 0) {
+                    mCurrentSelection--;
+                    updatePlayer();
+                }
+
+                if(mCurrentSelection == 0) {
+                    mPrevButton.setVisibility(View.INVISIBLE);
+                }
+
+                // re-display the Next button
+                if(mCurrentSelection == mTrackList.size() - 2) {
+                    mNextButton.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
         return view;
     }
 
+    private void updatePlayer() {
+
+        // update the track selected
+        mCurrentTrack = mTrackList.get(mCurrentSelection);
+
+        // update view elements with new track info & start track
+        initializeTextViews(mCurrentTrack);
+        initializeImageView(mCurrentTrack);
+        play(mCurrentTrack.getPreviewUrl());
+        mPlayPauseButton.setImageResource(R.drawable.ic_media_pause_white);
+
+    }
 
 
     @Override
@@ -205,7 +271,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
     public void play(final String url) {
 
         // ensure the is only one MediaPlayer instance running
-        //stop();
+        stop();
 
         // show the progressbar while loading track
         mProgressBar.setVisibility(View.VISIBLE);

@@ -9,6 +9,7 @@ package com.example.spotifystreamer.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -33,6 +34,7 @@ public class TracksFragment extends Fragment {
 
     private static final String LOG_TAG = TracksFragment.class.getSimpleName();
     private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
+    private final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
     private final String PREF_COUNTRY_KEY = "pref_key_country_code";
 
     private TracksArrayAdapter mTracksAdapter;
@@ -92,9 +94,12 @@ public class TracksFragment extends Fragment {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Track track = mTracksAdapter.getItem(position);
+                //Track track = mTracksAdapter.getItem(position);
                 Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
-                intent.putExtra(EXTRA_TRACK_RESULTS, track);
+                intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS,
+                        (ArrayList<? extends Parcelable>) mTrackList);
+                intent.putExtra(EXTRA_TRACK_SELECTION, position); // item clicked on
+                //intent.putExtra(EXTRA_TRACK_RESULTS, track);
                 startActivity(intent);
 
             }
