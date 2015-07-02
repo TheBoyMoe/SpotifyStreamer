@@ -98,6 +98,10 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
         initializeImageView(track);
         mProgressBar.setVisibility(View.INVISIBLE);
 
+        // load & start track as soon as fragment loaded
+        play(track.getPreviewUrl());
+        mPlayPauseButton.setImageResource(R.drawable.ic_media_pause_white);
+
 
         // wire-up the play/pause button
         mPlayPauseButton.setOnClickListener(new View.OnClickListener() {
