@@ -5,15 +5,14 @@ package com.example.spotifystreamer.activities;
  * http://discussions.udacity.com/t/asynctask-vs-callbacks/21223
  */
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.DialogFragment;
@@ -33,7 +32,7 @@ import android.widget.ProgressBar;
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Artist;
 import com.example.spotifystreamer.model.QuerySuggestionProvider;
-import com.example.spotifystreamer.model.Track;
+import com.example.spotifystreamer.model.MyTrack;
 import com.example.spotifystreamer.utils.Utils;
 import com.example.spotifystreamer.view.ArtistsArrayAdapter;
 
@@ -44,10 +43,8 @@ import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
 import kaaes.spotify.webapi.android.models.Image;
-import kaaes.spotify.webapi.android.models.Tracks;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -63,7 +60,7 @@ import retrofit.client.Response;
 public class ArtistsFragment extends Fragment implements  SearchView.OnQueryTextListener{
 
     private static final String LOG_TAG = ArtistsFragment.class.getSimpleName();
-    private final boolean L = false;
+    private final boolean L = true;
 
     private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
     private final String PREFS_RESULTS_RETURNED = "pref_key_result_returned";
@@ -72,7 +69,7 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     private ListView mListView;
     private ArtistsArrayAdapter mArtistsAdapter;
     private List<Artist> mArtists;
-    private List<Track> mTracks;
+    private List<MyTrack> mTracks;
     private SearchView mSearchView;
     private static SearchRecentSuggestions sSearchRecentSuggestions;
     private MenuItem mSearchMenuItem;
@@ -82,9 +79,33 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     private String mCountry;
     private String mLimit;
     private Map<String, Object> mOptions;
+    private OnArtistSelectedListener mCallback;
 
 
     public ArtistsFragment() { }
+
+
+    // Callback Interface allowing communication between fragment and hosting activity
+    public interface OnArtistSelectedListener {
+        void onTrackSelected(String artistName, String artistId);
+    }
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // get a reference to the hosting activity, ensuring it implements the interface,
+        // so that messages can be delivered to it.
+        try {
+            mCallback = (OnArtistSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() +
+                    " must implement the OnTrackSelectedListener");
+        }
+
+    }
+
 
 
     @Override
@@ -107,6 +128,7 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_content, container, false);
 
         // cache references to view elements of interest
@@ -115,89 +137,101 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
         mProgressBar.setVisibility(View.GONE);
 
 
-        // register item click listener - execute Top-Ten Track download
+        // register item click listener - execute Top-Ten MyTrack download
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
 
-                // retrieve id & name of the particular artist & add as an extra to the intent
+                // retrieve id & name of the particular artist &
+                // use the callback to pass up to the activity
                 Artist artist = mArtistsAdapter.getItem(position);
-                final String artistName = artist.getName();
-                final String artistId = artist.getId();
+                String artistName = artist.getName();
+                String artistId = artist.getId();
 
-                // clear the ArrayList pf previous results
-                mTracks.clear();
+                mCallback.onTrackSelected(artistName, artistId);
+                Log.d(LOG_TAG, "Clicked on position " + position
+                        + ", artist name " + artistName + ", artistId " + artistId);
+
+
+                // clear the ArrayList of previous results
+                //mTracks.clear();
 
                 // set the Search Options
-                mOptions.clear();
-                mOptions.put("country", mCountry);
+//              mOptions.clear();
+//                mOptions.put("country", mCountry);
 
-                // download the artists top ten tracks
-                mSpotifyService.getArtistTopTrack(artistId, mOptions, new Callback<Tracks>() {
-                    @Override
-                    public void success(final Tracks tracks, Response response) {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                List<kaaes.spotify.webapi.android.models.Track> list = tracks.tracks;
-                                if(L) Log.i(LOG_TAG, "Number of returned results: " + list.size());
-                                for (int i = 0; i < list.size(); i++) {
-                                    kaaes.spotify.webapi.android.models.Track track = list.get(i);
-                                    String trackTitle = track.name;
-                                    String previewUrl = track.preview_url;
-                                    long trackDuration = track.duration_ms / 1000;
-                                    String imageUrl = null, thumbnailUrl = null;
-
-                                    // retrieve album title & album images from the SimpleAlbum object
-                                    AlbumSimple album = track.album;
-                                    String albumTitle = album.name;
-                                    List<Image> imageList = album.images;
-                                    for (int j = 0; j < imageList.size(); j++) {
-                                        Image img = imageList.get(j);
-                                        if (img.width >= 200 && img.width < 400) {
-                                            thumbnailUrl = img.url;
-                                            continue;
-                                        }
-                                        if (img.width >= 600) {
-                                            imageUrl = img.url;
-                                        }
-                                    }
-                                    // instantiate the app's Track object
-                                    Track retrievedTrack = new Track(artistId, artistName, trackTitle,
-                                            albumTitle, imageUrl, thumbnailUrl, previewUrl, trackDuration);
-                                    if (L) Log.i(LOG_TAG, retrievedTrack.toString() + ", imageUrl: "
-                                            + imageUrl + ", thumbnailUrl: " + thumbnailUrl
-                                            + ", track duration: " + trackDuration);
-
-                                    mTracks.add(retrievedTrack);
-                                }
-
-                                // if one or more tracks were found, display the results in a new activity
-                                if(mTracks.size() > 0) {
-                                    Intent intent = new Intent(getActivity(), TracksActivity.class);
-                                    intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS,
-                                            (ArrayList<? extends Parcelable>) mTracks);
-                                    startActivity(intent);
-                                } else {
-                                    Log.d(LOG_TAG, "No tracks found, array size: " + mTracks.size());
-                                    Utils.showToast(getActivity(), "Track list not available");
-                                }
-
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void failure(final RetrofitError error) {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Log.d(LOG_TAG, "Error message: " + error.getUrl());
-                                Utils.showToast(getActivity(), "Track list not available or invalid country code");
-                            }
-                        });
-                    }
-                });
+//                // download the selected artist's top ten tracks
+//                mSpotifyService.getArtistTopTrack(artistId, mOptions, new Callback<Tracks>() {
+//                    @Override
+//                    public void success(final Tracks tracks, Response response) {
+//                        getActivity().runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                List<kaaes.spotify.webapi.android.models.MyTrack> list = tracks.tracks;
+//                                if(L) Log.i(LOG_TAG, "Number of returned results: " + list.size());
+//                                for (int i = 0; i < list.size(); i++) {
+//                                    kaaes.spotify.webapi.android.models.MyTrack track = list.get(i);
+//                                    String trackTitle = track.name;
+//                                    String previewUrl = track.preview_url;
+//                                    long trackDuration = track.duration_ms / 1000;
+//                                    String imageUrl = null, thumbnailUrl = null;
+//
+//                                    // retrieve album title & album images from the SimpleAlbum object
+//                                    AlbumSimple album = track.album;
+//                                    String albumTitle = album.name;
+//                                    List<Image> imageList = album.images;
+//                                    for (int j = 0; j < imageList.size(); j++) {
+//                                        Image img = imageList.get(j);
+//                                        if (img.width >= 200 && img.width < 400) {
+//                                            thumbnailUrl = img.url;
+//                                            continue;
+//                                        }
+//                                        if (img.width >= 600) {
+//                                            imageUrl = img.url;
+//                                        }
+//                                    }
+//                                    // instantiate the app's MyTrack object
+//                                    MyTrack retrievedTrack = new MyTrack(artistId, artistName, trackTitle,
+//                                            albumTitle, imageUrl, thumbnailUrl, previewUrl, trackDuration);
+//                                    if (L) Log.i(LOG_TAG, retrievedTrack.toString() + ", imageUrl: "
+//                                            + imageUrl + ", thumbnailUrl: " + thumbnailUrl
+//                                            + ", track duration: " + trackDuration);
+//
+//                                    mTracks.add(retrievedTrack);
+//                                }
+//
+//                                // if one or more tracks were found, display the results in a new activity
+//                                if(mTracks.size() > 0) {
+//
+//                                    // pass the tracks array list to the TracksActivity so it can display the results
+//                                    Intent intent = new Intent(getActivity(), TracksActivity.class);
+//                                    intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS,
+//                                            (ArrayList<? extends Parcelable>) mTracks);
+//                                    startActivity(intent);
+//
+//                                    // set item checked to be highlighted
+//                                    mListView.setItemChecked(position, true);
+//
+//                                } else {
+//                                    Log.d(LOG_TAG, "No tracks found, array size: " + mTracks.size());
+//                                    Utils.showToast(getActivity(), "MyTrack list not available");
+//                                }
+//
+//                            }
+//                        });
+//                    }
+//
+//                    @Override
+//                    public void failure(final RetrofitError error) {
+//                        getActivity().runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Log.d(LOG_TAG, "Error message: " + error.getUrl());
+//                                Utils.showToast(getActivity(), "MyTrack list not available or invalid country code");
+//                            }
+//                        });
+//                    }
+//                });
 
 
             }
@@ -227,7 +261,7 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
                 PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
         mCountry = prefs.getString(PREF_COUNTRY_KEY,
                 getActivity().getString(R.string.pref_country_code_default));
-        if(mCountry.equals(""))
+        if(mCountry.isEmpty())
             mCountry = getActivity().getString(R.string.pref_country_code_default);
         mLimit = prefs.getString(PREFS_RESULTS_RETURNED,
                 getActivity().getString(R.string.pref_results_returned_default));

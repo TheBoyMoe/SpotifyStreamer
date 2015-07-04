@@ -6,7 +6,7 @@ import android.os.Bundle;
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.utils.BaseActivity;
 
-public class TrackPlayerActivity  extends BaseActivity{
+public class PlayerActivity extends BaseActivity {
 
 
     @Override
@@ -15,7 +15,7 @@ public class TrackPlayerActivity  extends BaseActivity{
 
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new TrackPlayerFragment())
+                    .add(R.id.container, new PlayerFragment())
                     .commit();
         }
 

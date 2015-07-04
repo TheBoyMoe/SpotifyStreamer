@@ -8,7 +8,7 @@ import android.os.Parcelable;
  *  by Dallas Gutauckis to build the Parcelable methods
  */
 
-public class Track implements Parcelable {
+public class MyTrack implements Parcelable {
 
     private String mArtistId;
     private String mArtistName;
@@ -20,16 +20,16 @@ public class Track implements Parcelable {
     private long mTrackDuration;
 
 
-    public Track() {}
+    public MyTrack() {}
 
-    public Track(String artistId,
-                 String artistName,
-                 String trackTitle,
-                 String albumTitle,
-                 String imageUrl,
-                 String thumbnailUrl,
-                 String previewUrl,
-                 long trackDuration) {
+    public MyTrack(String artistId,
+                   String artistName,
+                   String trackTitle,
+                   String albumTitle,
+                   String imageUrl,
+                   String thumbnailUrl,
+                   String previewUrl,
+                   long trackDuration) {
 
         mArtistId = artistId;
         mArtistName = artistName;
@@ -80,13 +80,13 @@ public class Track implements Parcelable {
 
     @Override
     public String toString() {
-        return String.format("Track %s, by %s from the album %s",
+        return String.format("MyTrack %s, by %s from the album %s",
                 getTrackTitle(), getArtistName(), getAlbumTitle());
     }
 
 
     // methods req'd to implement the parcelable interface
-    protected Track(Parcel in) {
+    protected MyTrack(Parcel in) {
         mArtistId = in.readString();
         mArtistName = in.readString();
         mTrackTitle = in.readString();
@@ -115,15 +115,15 @@ public class Track implements Parcelable {
     }
 
     @SuppressWarnings("unused")
-    public static final Parcelable.Creator<Track> CREATOR = new Parcelable.Creator<Track>() {
+    public static final Parcelable.Creator<MyTrack> CREATOR = new Parcelable.Creator<MyTrack>() {
         @Override
-        public Track createFromParcel(Parcel in) {
-            return new Track(in);
+        public MyTrack createFromParcel(Parcel in) {
+            return new MyTrack(in);
         }
 
         @Override
-        public Track[] newArray(int size) {
-            return new Track[size];
+        public MyTrack[] newArray(int size) {
+            return new MyTrack[size];
         }
     };
 

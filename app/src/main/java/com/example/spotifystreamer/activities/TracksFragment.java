@@ -22,7 +22,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.example.spotifystreamer.R;
-import com.example.spotifystreamer.model.Track;
+import com.example.spotifystreamer.model.MyTrack;
 import com.example.spotifystreamer.utils.Utils;
 import com.example.spotifystreamer.view.TracksArrayAdapter;
 
@@ -39,9 +39,10 @@ public class TracksFragment extends Fragment {
 
     private TracksArrayAdapter mTracksAdapter;
     private ListView mListView;
-    private List<Track> mTrackList;
+    private List<MyTrack> mTrackList;
     private ProgressBar mProgressBar;
     private String mCountry;
+
 
     public TracksFragment() { }
 
@@ -52,6 +53,8 @@ public class TracksFragment extends Fragment {
 
         mTrackList = new ArrayList<>();
     }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -85,7 +88,7 @@ public class TracksFragment extends Fragment {
             mTracksAdapter = new TracksArrayAdapter(getActivity(), mTrackList);
             mListView.setAdapter(mTracksAdapter);
 
-            Utils.showToast(getActivity(), "Track list for " + mCountry.toUpperCase());
+            Utils.showToast(getActivity(), "MyTrack list for " + mCountry.toUpperCase());
 
         }
 
@@ -94,12 +97,10 @@ public class TracksFragment extends Fragment {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                //Track track = mTracksAdapter.getItem(position);
-                Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
+                Intent intent = new Intent(getActivity(), PlayerActivity.class);
                 intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS,
                         (ArrayList<? extends Parcelable>) mTrackList);
                 intent.putExtra(EXTRA_TRACK_SELECTION, position); // item clicked on
-                //intent.putExtra(EXTRA_TRACK_RESULTS, track);
                 startActivity(intent);
 
             }

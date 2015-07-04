@@ -17,7 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.spotifystreamer.R;
-import com.example.spotifystreamer.model.Track;
+import com.example.spotifystreamer.model.MyTrack;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -48,11 +48,11 @@ import java.util.List;
  *
  */
 
-public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPreparedListener{
+public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedListener{
 
     private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
     private final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
-    private static final String LOG_TAG = TrackPlayerFragment.class.getSimpleName();
+    private static final String LOG_TAG = PlayerFragment.class.getSimpleName();
     private final boolean L = true;
 
 
@@ -71,11 +71,11 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
     private MediaPlayer mMediaPlayer;
     private ProgressBar mProgressBar;
     private Handler mSeekHandler;
-    private List<Track> mTrackList;
+    private List<MyTrack> mTrackList;
     private int mCurrentSelection;
-    private Track mCurrentTrack;
+    private MyTrack mCurrentTrack;
 
-    public TrackPlayerFragment() {}
+    public PlayerFragment() {}
 
 
     @Override
@@ -99,7 +99,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
 
         // grab the track list and retrieve the selected track
         Intent intent = getActivity().getIntent();
-        //final Track track = intent.getParcelableExtra(EXTRA_TRACK_RESULTS);
+        //final MyTrack track = intent.getParcelableExtra(EXTRA_TRACK_RESULTS);
 
         mTrackList = intent.getParcelableArrayListExtra(EXTRA_TRACK_RESULTS);
         mCurrentSelection = intent.getIntExtra(EXTRA_TRACK_SELECTION, 0);
@@ -300,7 +300,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
                 // stop the media player and reset the SeekBar & Timer
                 stop();
                 mCurrentPosition = 0;
-                if(L) Log.i(LOG_TAG, "Track finished, setting position to: " + mCurrentPosition +
+                if(L) Log.i(LOG_TAG, "MyTrack finished, setting position to: " + mCurrentPosition +
                         " Media Player: " + mMediaPlayer);
                 mSeekBar.setProgress(mCurrentPosition);
                 mTrackTimer.setText(timeFormatter(mCurrentPosition));
@@ -418,7 +418,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
     }
 
 
-    private void initializeTextViews(Track track) {
+    private void initializeTextViews(MyTrack track) {
         mArtistName.setText(track.getArtistName());
         mAlbumTitle.setText(track.getAlbumTitle());
         mTrackTitle.setText(track.getTrackTitle());
@@ -439,7 +439,7 @@ public class TrackPlayerFragment extends Fragment implements MediaPlayer.OnPrepa
     }
 
 
-    private void initializeImageView(Track track) {
+    private void initializeImageView(MyTrack track) {
         Picasso.with(getActivity())
                 .load(track.getImageUrl())
                 .resize(320, 320)

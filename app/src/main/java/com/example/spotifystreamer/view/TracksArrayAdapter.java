@@ -11,20 +11,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.spotifystreamer.R;
-import com.example.spotifystreamer.model.Track;
+import com.example.spotifystreamer.model.MyTrack;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class TracksArrayAdapter extends ArrayAdapter<Track>{
+public class TracksArrayAdapter extends ArrayAdapter<MyTrack>{
 
     private static final String LOG_TAG = TracksArrayAdapter.class.getSimpleName();
     private final boolean L = false;
 
-    private List<Track> mList;
+    private List<MyTrack> mList;
 
 
-    public TracksArrayAdapter(Context context, List<Track> tracks) {
+    public TracksArrayAdapter(Context context, List<MyTrack> tracks) {
         super(context, 0, tracks);
         mList = tracks;
     }
@@ -33,7 +33,7 @@ public class TracksArrayAdapter extends ArrayAdapter<Track>{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // retrieve the artist object for this position
-        Track track = getItem(position);
+        MyTrack track = getItem(position);
         if(L) Log.i(LOG_TAG, track.toString());
 
         // inflate a new view if there isn't one available to be recycled
@@ -68,7 +68,7 @@ public class TracksArrayAdapter extends ArrayAdapter<Track>{
 
 
     @Override
-    public Track getItem(int position) {
+    public MyTrack getItem(int position) {
         return (mList != null? mList.get(position) : null);
     }
 
@@ -79,7 +79,7 @@ public class TracksArrayAdapter extends ArrayAdapter<Track>{
     }
 
 
-    public void updateView(List<Track> list) {
+    public void updateView(List<MyTrack> list) {
         mList = list;
         notifyDataSetChanged();
     }
