@@ -1,6 +1,5 @@
 package com.example.spotifystreamer.activities;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -34,15 +33,11 @@ import retrofit.client.Response;
  * http://android-developers.blogspot.co.uk/2011/07/new-tools-for-managing-screen-sizes.html
  */
 public class MainActivity extends BaseActivity
-        implements ArtistsFragment.OnArtistSelectedListener,
-        TracksFragment.OnTrackSelectedListener{
+        implements ArtistsFragment.OnArtistSelectedListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private final boolean L = true;
-    private boolean mTwoPane;
 
-    private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
-    private final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
     private final String EXTRA_TWO_PANE = "two_pane";
     private final String PREF_COUNTRY_KEY = "pref_key_country_code";
     private SpotifyApi mApi;
@@ -50,6 +45,7 @@ public class MainActivity extends BaseActivity
     private String mCountry;
     private Map<String, Object> mOptions;
     private List<MyTrack> mTracks;
+    private boolean mTwoPane;
 
 
     @Override
@@ -222,34 +218,6 @@ public class MainActivity extends BaseActivity
         ft.addToBackStack(null);
         ft.commit();
     }
-
-
-    // launch the PlayerActivity to play the selected track
-    @Override
-    public void onTrackSelected(ArrayList<MyTrack> tracks, int position) {
-
-        if(mTwoPane) {
-            // launch the player in a fragment and swap it for the current tracks fragment
-            PlayerFragment newPlayerFragment = PlayerFragment.newInstance(tracks, position);
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.tracks_fragment_container, newPlayerFragment);
-            ft.addToBackStack(null);
-            ft.commit();
-
-        } else {
-            // launch the Player in a new activity on phones
-            Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
-            intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS, tracks);
-            intent.putExtra(EXTRA_TRACK_SELECTION, position); // item clicked on
-            startActivity(intent);
-        }
-
-
-
-    }
-
-
-
 
 
 
