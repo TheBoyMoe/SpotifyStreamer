@@ -14,7 +14,7 @@ public class TracksActivity extends BaseActivity {
 
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new TracksFragment())
+                    .add(R.id.fragment_container, new TracksFragment())
                     .commit();
         }
 

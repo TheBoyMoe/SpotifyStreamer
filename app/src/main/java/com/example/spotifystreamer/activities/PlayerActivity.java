@@ -15,7 +15,7 @@ public class PlayerActivity extends BaseActivity {
 
         if(savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlayerFragment())
+                    .add(R.id.fragment_container, new PlayerFragment())
                     .commit();
         }
 

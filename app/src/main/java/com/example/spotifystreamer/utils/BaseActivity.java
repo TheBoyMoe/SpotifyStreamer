@@ -13,6 +13,7 @@ package com.example.spotifystreamer.utils;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -34,7 +35,21 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_container);
+        //setContentView(R.layout.fragment_container);
+
+        // select the layout depending on the device size found
+        Configuration config = getResources().getConfiguration();
+
+        // tablet device >= 600dp in width
+        if(config.smallestScreenWidthDp >= 600) {
+            if((config.orientation == config.ORIENTATION_PORTRAIT))
+                setContentView(R.layout.fragment_container_tablet_portrait);
+            else
+                setContentView(R.layout.fragment_container_tablet_landscape);
+        }
+        // phone
+        else
+            setContentView(R.layout.fragment_container);
 
         // Instantiate & configure the ToolBar
         Toolbar toolbar = (Toolbar) findViewById(R.id.app_toolbar);

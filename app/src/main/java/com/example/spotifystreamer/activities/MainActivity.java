@@ -3,8 +3,8 @@ package com.example.spotifystreamer.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
 import com.example.spotifystreamer.R;
@@ -27,14 +27,23 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-
+/**
+ * Single/TwoPane layout based on:
+ * http://developer.android.com/guide/components/fragments.html
+ * http://developer.android.com/training/basics/fragments/index.html
+ * http://android-developers.blogspot.co.uk/2011/07/new-tools-for-managing-screen-sizes.html
+ */
 public class MainActivity extends BaseActivity
-        implements ArtistsFragment.OnArtistSelectedListener{
+        implements ArtistsFragment.OnArtistSelectedListener,
+        TracksFragment.OnTrackSelectedListener{
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private final boolean L = true;
+    private boolean mTwoPane;
 
     private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
+    private final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
+    private final String EXTRA_TWO_PANE = "two_pane";
     private final String PREF_COUNTRY_KEY = "pref_key_country_code";
     private SpotifyApi mApi;
     private SpotifyService mSpotifyService;
@@ -47,16 +56,29 @@ public class MainActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // determine whether the phone is a phone or tablet
-        if(findViewById(R.id.container) != null) {
-            // must be a phone
-            if(savedInstanceState != null) return; // previous state is being restored
 
-            // first time in, instantiate the fragment
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ArtistsFragment())
-                    .commit();
+        if(savedInstanceState == null) {
 
+            // determine if this is a phone/tablet
+            if(findViewById(R.id.tracks_fragment_container) != null) {
+                // two pane layout - tablet
+                Log.d(LOG_TAG, "On a tablet!");
+                mTwoPane = true;
+                // instantiate the tracks fragment and add it
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.tracks_fragment_container, new TracksFragment())
+                        .commit();
+
+            } else {
+                // must be a phone
+                Log.d(LOG_TAG, "On the phone!");
+                mTwoPane = false;
+
+                // first time in, instantiate the fragment
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, new ArtistsFragment())
+                        .commit();
+            }
         }
 
 
@@ -74,19 +96,40 @@ public class MainActivity extends BaseActivity
         mApi = new SpotifyApi();
         mSpotifyService = mApi.getService();
 
+
+        // restore state saved on device rotation
+        if(savedInstanceState != null)  {
+            mTwoPane = savedInstanceState.getBoolean(EXTRA_TWO_PANE);
+            Log.d(LOG_TAG, "Restore twoPane value: " + mTwoPane);
+        }
+
     }
 
 
-    // execute the Top Ten MyTrack download for the selected artist
     @Override
-    public void onTrackSelected(final String artistName, final String artistId) {
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(EXTRA_TWO_PANE, mTwoPane);
+    }
+
+    // execute the Top Ten MyTrack download for the selected artist
+    // Implements the OnArtistSelectedListener of the Artists Fragment
+    @Override
+    public void onArtistSelected(final String artistName, final String artistId) {
 
         // clear any results in case user presses the back button
-        mTracks.clear();
+        if(mTracks != null)
+            mTracks.clear();
 
+        Log.d(LOG_TAG, "Spotify Service: " + mSpotifyService);
+        // download the artists top ten tracks using SpotifyWebWrapper in a bkgd thread
         mSpotifyService.getArtistTopTrack(artistId, mOptions, new Callback<Tracks>() {
+
             @Override
             public void success(final Tracks tracks, Response response) {
+
+                // use runOnUiThread() to display the artists list on the UI thread
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -116,7 +159,7 @@ public class MainActivity extends BaseActivity
                             // instantiate the app's MyTrack object
                             MyTrack retrievedTrack =
                                     new MyTrack(artistId, artistName, trackTitle,
-                                    albumTitle, imageUrl, thumbnailUrl, previewUrl, trackDuration);
+                                            albumTitle, imageUrl, thumbnailUrl, previewUrl, trackDuration);
                             if (L) Log.i(LOG_TAG, retrievedTrack.toString() + ", imageUrl: "
                                     + imageUrl + ", thumbnailUrl: " + thumbnailUrl
                                     + ", track duration: " + trackDuration);
@@ -127,40 +170,84 @@ public class MainActivity extends BaseActivity
                         // if one or more tracks were found, display the results in a new activity
                         if (mTracks.size() > 0) {
 
-                            // pass the tracks array list to the TracksActivity so it can display the results
-                            Intent intent = new Intent(MainActivity.this, TracksActivity.class);
-                            intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS,
-                                    (ArrayList<? extends Parcelable>) mTracks);
-                            startActivity(intent);
+                            updateTracksFragment();
 
                         } else {
                             Log.d(LOG_TAG, "No tracks found, array size: " + mTracks.size());
-                            Utils.showToast(MainActivity.this, "MyTrack list not available");
+                            Utils.showToast(MainActivity.this, "Track list not available");
                         }
-
                     }
                 });
             }
 
 
-            // Log an error and display a message to the user
             @Override
             public void failure(final RetrofitError error) {
                 runOnUiThread(new Runnable() {
+                    // Log an error and display a message to the user
                     @Override
                     public void run() {
                         Log.d(LOG_TAG, "Error message: " + error.getUrl());
                         Utils.showToast(MainActivity.this,
-                                "MyTrack list not available or invalid country code");
+                                "Track list not available or invalid country code");
                     }
                 });
             }
 
-
         });
+
+    }
+
+
+    // Either swap the Artists Fragment out or update the Tracks fragment
+    // depending on whether we're on a phone or tablet
+    private void updateTracksFragment() {
+
+        // instantiate a new TracksFragment containing the tracks bundle
+        TracksFragment newTracksFragment = TracksFragment.newInstance(mTracks);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+
+         // If we're on the tablet
+        if(mTwoPane) {
+            // update the tracks fragment
+            ft.replace(R.id.tracks_fragment_container, newTracksFragment);
+
+        } else {
+
+            // you're on a phone, swap the artists fragment
+            // with the tracks fragment
+            ft.replace(R.id.fragment_container, newTracksFragment);
+        }
+        // add the fragment to the BackStack so it's not destroyed & commit the transaction
+        ft.addToBackStack(null);
+        ft.commit();
+    }
+
+
+    // launch the PlayerActivity to play the selected track
+    @Override
+    public void onTrackSelected(ArrayList<MyTrack> tracks, int position) {
+
+        if(mTwoPane) {
+            // launch the player in a fragment and swap it for the current tracks fragment
+            PlayerFragment newPlayerFragment = PlayerFragment.newInstance(tracks, position);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.tracks_fragment_container, newPlayerFragment);
+            ft.addToBackStack(null);
+            ft.commit();
+
+        } else {
+            // launch the Player in a new activity on phones
+            Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+            intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS, tracks);
+            intent.putExtra(EXTRA_TRACK_SELECTION, position); // item clicked on
+            startActivity(intent);
+        }
+
 
 
     }
+
 
 
 

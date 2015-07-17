@@ -5,6 +5,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,8 +51,8 @@ import java.util.List;
 
 public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedListener{
 
-    private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
-    private final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
+    private static final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
+    private static final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
     private static final String LOG_TAG = PlayerFragment.class.getSimpleName();
     private final boolean L = true;
 
@@ -78,14 +79,36 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
     public PlayerFragment() {}
 
 
+    // newInstance() method instantiates a fragment with an added args bundle
+    public static PlayerFragment newInstance(List<MyTrack> tracks, int position) {
+
+        // create a bundle, add the track position and array of tracks
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(EXTRA_TRACK_RESULTS,
+                (ArrayList<? extends Parcelable>) tracks);
+        args.putInt(EXTRA_TRACK_SELECTION, position);
+
+        // instantiate a new fragment and add the bundle
+        PlayerFragment fragment = new PlayerFragment();
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // used to update the SeekBar at 1 sec intervals
         mSeekHandler = new Handler();
-
         mTrackList = new ArrayList<>();
+
+
+
+
+
 
     }
 
@@ -101,8 +124,23 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
         Intent intent = getActivity().getIntent();
         //final MyTrack track = intent.getParcelableExtra(EXTRA_TRACK_RESULTS);
 
-        mTrackList = intent.getParcelableArrayListExtra(EXTRA_TRACK_RESULTS);
-        mCurrentSelection = intent.getIntExtra(EXTRA_TRACK_SELECTION, 0);
+
+        // instantiated the fragment in twopane layout
+        Bundle bundle = getArguments();
+        Log.d(LOG_TAG, "Bundle: " + bundle);
+        if(bundle != null) {
+
+            // in twoPane layout
+            mTrackList = bundle.getParcelableArrayList(EXTRA_TRACK_RESULTS);
+            mCurrentSelection = bundle.getInt(EXTRA_TRACK_SELECTION, 0);
+
+        } else {
+
+            // started via intent
+            mTrackList = intent.getParcelableArrayListExtra(EXTRA_TRACK_RESULTS);
+            mCurrentSelection = intent.getIntExtra(EXTRA_TRACK_SELECTION, 0);
+        }
+
         mCurrentTrack = mTrackList.get(mCurrentSelection);
 
         // use it to initialize the text and image views

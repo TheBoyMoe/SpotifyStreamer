@@ -17,6 +17,8 @@ import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,7 +34,6 @@ import android.widget.ProgressBar;
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Artist;
 import com.example.spotifystreamer.model.QuerySuggestionProvider;
-import com.example.spotifystreamer.model.MyTrack;
 import com.example.spotifystreamer.utils.Utils;
 import com.example.spotifystreamer.view.ArtistsArrayAdapter;
 
@@ -62,14 +63,13 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
     private static final String LOG_TAG = ArtistsFragment.class.getSimpleName();
     private final boolean L = true;
 
-    private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
+    // private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
     private final String PREFS_RESULTS_RETURNED = "pref_key_result_returned";
     private final String PREF_COUNTRY_KEY = "pref_key_country_code";
 
     private ListView mListView;
     private ArtistsArrayAdapter mArtistsAdapter;
     private List<Artist> mArtists;
-    private List<MyTrack> mTracks;
     private SearchView mSearchView;
     private static SearchRecentSuggestions sSearchRecentSuggestions;
     private MenuItem mSearchMenuItem;
@@ -87,7 +87,7 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
 
     // Callback Interface allowing communication between fragment and hosting activity
     public interface OnArtistSelectedListener {
-        void onTrackSelected(String artistName, String artistId);
+        void onArtistSelected(String artistName, String artistId);
     }
 
 
@@ -101,7 +101,7 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
             mCallback = (OnArtistSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() +
-                    " must implement the OnTrackSelectedListener");
+                    " must implement the OnArtistSelectedListener");
         }
 
     }
@@ -114,7 +114,6 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
 
         // instantiate the various collections used
         mArtists = new ArrayList<>();
-        mTracks = new ArrayList<>();
         mOptions = new HashMap<>();
 
         // instantiate the Spotify Service Wrapper
@@ -123,6 +122,14 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
 
         setRetainInstance(true); // ensure the fragment outlives device rotation
         setHasOptionsMenu(true); // add the search menu item
+
+        // ??? NOT CALLED when
+        ActionBar toolbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if(toolbar != null) {
+            toolbar.setDisplayHomeAsUpEnabled(false);
+            toolbar.setTitle(R.string.app_name);
+            toolbar.setSubtitle(null);
+        }
 
     }
 
@@ -148,9 +155,11 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
                 String artistName = artist.getName();
                 String artistId = artist.getId();
 
-                mCallback.onTrackSelected(artistName, artistId);
-                Log.d(LOG_TAG, "Clicked on position " + position
+
+                mCallback.onArtistSelected(artistName, artistId);
+                if(L) Log.d(LOG_TAG, "Clicked on position " + position
                         + ", artist name " + artistName + ", artistId " + artistId);
+
 
 
                 // clear the ArrayList of previous results

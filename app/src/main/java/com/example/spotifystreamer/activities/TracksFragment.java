@@ -6,7 +6,8 @@ package com.example.spotifystreamer.activities;
  * http://stackoverflow.com/questions/26998455/how-to-get-toolbar-from-fragment
  */
 
-import android.content.Intent;
+import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -14,6 +15,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +25,6 @@ import android.widget.ProgressBar;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.MyTrack;
-import com.example.spotifystreamer.utils.Utils;
 import com.example.spotifystreamer.view.TracksArrayAdapter;
 
 import java.util.ArrayList;
@@ -33,18 +34,63 @@ import java.util.List;
 public class TracksFragment extends Fragment {
 
     private static final String LOG_TAG = TracksFragment.class.getSimpleName();
-    private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
+    private static final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
     private final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
     private final String PREF_COUNTRY_KEY = "pref_key_country_code";
 
+    private OnTrackSelectedListener mCallback;
     private TracksArrayAdapter mTracksAdapter;
     private ListView mListView;
     private List<MyTrack> mTrackList;
     private ProgressBar mProgressBar;
     private String mCountry;
+    private Context mContext;
+    private Bundle mArgs;
+
 
 
     public TracksFragment() { }
+
+
+    // establish an interface allowing the tracks fragment to communicate
+    // with the Player fragment via MainActivity
+    public interface OnTrackSelectedListener {
+        //void onTrackSelected(ArrayList<? extends Parcelable> tracks, int position);
+        void onTrackSelected(ArrayList<MyTrack> tracks, int position);
+    }
+
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // get a reference to the hosting activity, ensuring it implements the interface,
+        // so that messages can be delivered to it.
+        try {
+            mCallback = (OnTrackSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() +
+                    " must implement the OnTrackSelectedListener");
+        }
+
+    }
+
+
+
+    // newInstance() method instantiates a fragment with an added args bundle
+    public static TracksFragment newInstance(List<MyTrack> tracks) {
+        // create a bundle, add the photo object
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(EXTRA_TRACK_RESULTS,
+                (ArrayList<? extends Parcelable>) tracks);
+
+        // instantiate a new fragment and add the bundle
+        TracksFragment fragment = new TracksFragment();
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
 
 
     @Override
@@ -52,8 +98,13 @@ public class TracksFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         mTrackList = new ArrayList<>();
-    }
 
+        // retrieve and args passed to the fragment and populate the tracks array list
+        Bundle args = getArguments();
+        if(args != null)
+            mTrackList = args.getParcelableArrayList(EXTRA_TRACK_RESULTS);
+
+    }
 
 
     @Override
@@ -75,20 +126,21 @@ public class TracksFragment extends Fragment {
 
 
         // retrieve the intent extra
-        Intent intent = getActivity().getIntent();
-        mTrackList = intent.getParcelableArrayListExtra(EXTRA_TRACK_RESULTS);
+        //Intent intent = getActivity().getIntent();
+        //mTrackList = intent.getParcelableArrayListExtra(EXTRA_TRACK_RESULTS);
         if(mTrackList != null) {
-
+            Log.d(LOG_TAG, "Track list size " + mTrackList.size());
             // add the Artist name as subtitle to the ToolBar
             ActionBar toolbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-            if(toolbar != null)
+            if(toolbar != null && !mTrackList.isEmpty()) {
+                toolbar.setDisplayHomeAsUpEnabled(true);
+                toolbar.setTitle(R.string.top_ten_tracks);
                 toolbar.setSubtitle(mTrackList.get(0).getArtistName());
+            }
 
             // instantiate the ArrayAdapter and bind it to the ListView
             mTracksAdapter = new TracksArrayAdapter(getActivity(), mTrackList);
             mListView.setAdapter(mTracksAdapter);
-
-            Utils.showToast(getActivity(), "MyTrack list for " + mCountry.toUpperCase());
 
         }
 
@@ -97,11 +149,17 @@ public class TracksFragment extends Fragment {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), PlayerActivity.class);
-                intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS,
-                        (ArrayList<? extends Parcelable>) mTrackList);
-                intent.putExtra(EXTRA_TRACK_SELECTION, position); // item clicked on
-                startActivity(intent);
+
+                // pass the tracklist and position to the MainActivity
+                // which will pass these to the Player Fragment
+//                mCallback.onTrackSelected((ArrayList<? extends Parcelable>) mTrackList, position);
+                mCallback.onTrackSelected((ArrayList<MyTrack>) mTrackList, position);
+
+//                Intent intent = new Intent(getActivity(), PlayerActivity.class);
+//                intent.putParcelableArrayListExtra(EXTRA_TRACK_RESULTS,
+//                        (ArrayList<? extends Parcelable>) mTrackList);
+//                intent.putExtra(EXTRA_TRACK_SELECTION, position); // item clicked on
+//                startActivity(intent);
 
             }
         });
@@ -113,7 +171,6 @@ public class TracksFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
 
     }
 
