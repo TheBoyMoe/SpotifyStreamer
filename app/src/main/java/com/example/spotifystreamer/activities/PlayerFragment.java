@@ -1,11 +1,12 @@
 package com.example.spotifystreamer.activities;
 
+import android.app.Fragment;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +47,10 @@ import java.util.List;
  * http://stackoverflow.com/questions/21864890/change-progress-music-when-clicked-on-seekbar-in-android
  * http://united-coders.com/nico-heid/an-android-seekbar-for-your-mediaplayer/
  *
+ *
+ * DialogFragment style
+ * http://stackoverflow.com/questions/15007272/how-to-change-the-background-color-around-a-dialogfragment
+ *
  */
 
 public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedListener{
@@ -85,12 +90,35 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
         mSeekHandler = new Handler();
         mTrackList = new ArrayList<>();
 
+        //setStyle(DialogFragment.STYLE_NORMAL, R.style.TabletPlayerDialog);
+
     }
+
+
+//    @Override
+//    public Dialog onCreateDialog(Bundle savedInstanceState) {
+//        Dialog dialog = super.onCreateDialog(savedInstanceState);
+//        //dialog.onBackPressed();
+//        return dialog;
+//    }
+
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_player, container, false);
+
+        //View view = inflater.inflate(R.layout.media_player_fragment, container, false);
+
+        Configuration config = getResources().getConfiguration();
+        View view;
+
+        if(config.smallestScreenWidthDp >= 600)
+            // fragment layout for tablets
+            view = inflater.inflate(R.layout.media_player_fragment_large, container, false);
+        else
+            // fragment layout for phones
+            view = inflater.inflate(R.layout.media_player_fragment, container, false);
+
 
         // create references to each of the layout elements of interest
         cacheLayoutViews(view);
@@ -236,6 +264,7 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
 
         return view;
     }
+
 
     private void updatePlayer() {
 

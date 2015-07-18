@@ -52,7 +52,7 @@ public class MainActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        // if the activity is being launched for the first time
         if(savedInstanceState == null) {
 
             // determine if this is a phone/tablet

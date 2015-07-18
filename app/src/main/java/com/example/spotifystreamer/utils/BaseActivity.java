@@ -35,9 +35,8 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.fragment_container);
 
-        // select the layout depending on the device size found
+        // set the content view based on device size
         Configuration config = getResources().getConfiguration();
 
         // tablet device >= 600dp in width
@@ -50,6 +49,7 @@ public class BaseActivity extends AppCompatActivity {
         // phone
         else
             setContentView(R.layout.fragment_container);
+
 
         // Instantiate & configure the ToolBar
         Toolbar toolbar = (Toolbar) findViewById(R.id.app_toolbar);
