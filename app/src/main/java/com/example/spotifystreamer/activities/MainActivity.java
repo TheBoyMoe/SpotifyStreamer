@@ -36,7 +36,7 @@ public class MainActivity extends BaseActivity
         implements ArtistsFragment.OnArtistSelectedListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
-    private final boolean L = true;
+    private final boolean L = false;
 
     private final String EXTRA_TWO_PANE = "two_pane";
     private final String PREF_COUNTRY_KEY = "pref_key_country_code";
@@ -96,7 +96,7 @@ public class MainActivity extends BaseActivity
         // restore state saved on device rotation
         if(savedInstanceState != null)  {
             mTwoPane = savedInstanceState.getBoolean(EXTRA_TWO_PANE);
-            Log.d(LOG_TAG, "Restore twoPane value: " + mTwoPane);
+            if(L) Log.i(LOG_TAG, "Restore twoPane value: " + mTwoPane);
         }
 
     }
@@ -118,7 +118,6 @@ public class MainActivity extends BaseActivity
         if(mTracks != null)
             mTracks.clear();
 
-        Log.d(LOG_TAG, "Spotify Service: " + mSpotifyService);
         // download the artists top ten tracks using SpotifyWebWrapper in a bkgd thread
         mSpotifyService.getArtistTopTrack(artistId, mOptions, new Callback<Tracks>() {
 
@@ -169,7 +168,7 @@ public class MainActivity extends BaseActivity
                             updateTracksFragment();
 
                         } else {
-                            Log.d(LOG_TAG, "No tracks found, array size: " + mTracks.size());
+                            if(L) Log.i(LOG_TAG, "No tracks found, array size: " + mTracks.size());
                             Utils.showToast(MainActivity.this, "Track list not available");
                         }
                     }

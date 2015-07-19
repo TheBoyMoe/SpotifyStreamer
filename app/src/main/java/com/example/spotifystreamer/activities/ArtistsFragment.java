@@ -35,7 +35,7 @@ import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.Artist;
 import com.example.spotifystreamer.model.QuerySuggestionProvider;
 import com.example.spotifystreamer.utils.Utils;
-import com.example.spotifystreamer.view.ArtistsArrayAdapter;
+import com.example.spotifystreamer.model.ArtistsArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;

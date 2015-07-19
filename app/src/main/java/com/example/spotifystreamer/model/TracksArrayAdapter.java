@@ -1,4 +1,4 @@
-package com.example.spotifystreamer.view;
+package com.example.spotifystreamer.model;
 
 
 import android.content.Context;
@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.spotifystreamer.R;
-import com.example.spotifystreamer.model.MyTrack;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;

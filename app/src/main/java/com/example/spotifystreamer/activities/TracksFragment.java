@@ -25,7 +25,7 @@ import android.widget.ProgressBar;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.MyTrack;
-import com.example.spotifystreamer.view.TracksArrayAdapter;
+import com.example.spotifystreamer.model.TracksArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

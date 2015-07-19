@@ -58,7 +58,7 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
     private static final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
     private static final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
     private static final String LOG_TAG = PlayerFragment.class.getSimpleName();
-    private final boolean L = true;
+    private final boolean L = false;
 
 
     private ImageButton mPlayPauseButton;
@@ -89,19 +89,7 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
         // used to update the SeekBar at 1 sec intervals
         mSeekHandler = new Handler();
         mTrackList = new ArrayList<>();
-
-        //setStyle(DialogFragment.STYLE_NORMAL, R.style.TabletPlayerDialog);
-
     }
-
-
-//    @Override
-//    public Dialog onCreateDialog(Bundle savedInstanceState) {
-//        Dialog dialog = super.onCreateDialog(savedInstanceState);
-//        //dialog.onBackPressed();
-//        return dialog;
-//    }
-
 
 
     @Override
