@@ -8,10 +8,8 @@ package com.example.spotifystreamer.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -116,12 +114,12 @@ public class TracksFragment extends BaseFragment {
         mProgressBar.setVisibility(View.GONE);
 
         // retrieve country listing from shared preferences
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-        mCountry = prefs.getString(PREF_COUNTRY_KEY,
-                getActivity().getString(R.string.pref_country_code_default));
-        if(mCountry.equals(""))
-            mCountry = getActivity().getString(R.string.pref_country_code_default);
+//        SharedPreferences prefs =
+//                PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+//        mCountry = prefs.getString(PREF_COUNTRY_KEY,
+//                getActivity().getString(R.string.pref_country_code_default));
+//        if(mCountry.equals(""))
+//            mCountry = getActivity().getString(R.string.pref_country_code_default);
 
         if(mTrackList != null) {
             Log.d(LOG_TAG, "Track list size " + mTrackList.size());

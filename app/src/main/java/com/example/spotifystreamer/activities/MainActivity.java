@@ -7,8 +7,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
 import com.example.spotifystreamer.R;
-import com.example.spotifystreamer.model.MyTrack;
 import com.example.spotifystreamer.base.BaseActivity;
+import com.example.spotifystreamer.model.MyTrack;
 import com.example.spotifystreamer.utils.Utils;
 
 import java.util.ArrayList;
@@ -77,28 +77,18 @@ public class MainActivity extends BaseActivity
             }
         }
 
-
-        // retrieve the country value saved to SharedPreferences
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        mCountry = prefs.getString(PREF_COUNTRY_KEY, getString(R.string.pref_country_code_default));
-        if(mCountry.isEmpty())
-            mCountry = getString(R.string.pref_country_code_default);
-
         mTracks = new ArrayList<>();
         mOptions = new HashMap<>();
-        mOptions.put("country", mCountry);
 
         // instantiate the Spotify Service
         mApi = new SpotifyApi();
         mSpotifyService = mApi.getService();
-
 
         // restore state saved on device rotation
         if(savedInstanceState != null)  {
             mTwoPane = savedInstanceState.getBoolean(EXTRA_TWO_PANE);
             if(L) Log.i(LOG_TAG, "Restore twoPane value: " + mTwoPane);
         }
-
     }
 
 
@@ -107,6 +97,22 @@ public class MainActivity extends BaseActivity
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(EXTRA_TWO_PANE, mTwoPane);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // // retrieve user preferences from SharedPreferences
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        mCountry = prefs.getString(PREF_COUNTRY_KEY, getString(R.string.pref_country_code_default));
+        if(mCountry.isEmpty())
+            mCountry = getString(R.string.pref_country_code_default);
+
+        // pass to options, used to execute search
+        mOptions.put("country", mCountry);
+
     }
 
     // execute the Top Ten MyTrack download for the selected artist
@@ -164,9 +170,7 @@ public class MainActivity extends BaseActivity
 
                         // if one or more tracks were found, display the results in a new activity
                         if (mTracks.size() > 0) {
-
                             updateTracksFragment();
-
                         } else {
                             if(L) Log.i(LOG_TAG, "No tracks found, array size: " + mTracks.size());
                             Utils.showToast(MainActivity.this, "Track list not available");
@@ -184,7 +188,7 @@ public class MainActivity extends BaseActivity
                     public void run() {
                         Log.d(LOG_TAG, "Error message: " + error.getUrl());
                         Utils.showToast(MainActivity.this,
-                                "Track list not available or invalid country code");
+                                "Track list not available for selected country");
                     }
                 });
             }

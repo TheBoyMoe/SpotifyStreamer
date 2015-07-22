@@ -62,7 +62,7 @@ public class PlayerFragment extends BaseFragment implements MediaPlayer.OnPrepar
     private static final String EXTRA_CURRENT_SELECTION = "current_selection";
     private static final String EXTRA_IS_PLAYING = "is_playing";
     private static final String LOG_TAG = PlayerFragment.class.getSimpleName();
-    private final boolean L = true;
+    private final boolean L = false;
 
     private ImageButton mPlayPauseButton;
     private ImageButton mPrevButton;

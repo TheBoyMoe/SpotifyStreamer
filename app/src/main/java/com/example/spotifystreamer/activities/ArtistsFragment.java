@@ -179,8 +179,8 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
 
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
 
         // retrieve user preferences from SharedPreferences
         SharedPreferences prefs =
@@ -191,8 +191,8 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
             mCountry = getActivity().getString(R.string.pref_country_code_default);
         mLimit = prefs.getString(PREFS_RESULTS_RETURNED,
                 getActivity().getString(R.string.pref_results_returned_default));
-    }
 
+    }
 
     // Add SearchView to the ToolBar
     @Override
