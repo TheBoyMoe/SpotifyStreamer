@@ -8,7 +8,7 @@ import android.util.Log;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.MyTrack;
-import com.example.spotifystreamer.utils.BaseActivity;
+import com.example.spotifystreamer.base.BaseActivity;
 import com.example.spotifystreamer.utils.Utils;
 
 import java.util.ArrayList;

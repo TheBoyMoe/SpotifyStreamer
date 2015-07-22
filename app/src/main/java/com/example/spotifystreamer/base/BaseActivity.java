@@ -1,4 +1,4 @@
-package com.example.spotifystreamer.utils;
+package com.example.spotifystreamer.base;
 
 
 /**
@@ -16,8 +16,11 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -30,11 +33,20 @@ import com.example.spotifystreamer.activities.SettingsActivity;
 
 public class BaseActivity extends AppCompatActivity {
 
+    private static final String LOG_TAG = BaseActivity.class.getSimpleName();
+    private final boolean L = false;
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(L) Log.d(LOG_TAG, "Calling onCreated()");
+
+        if(savedInstanceState == null)
+            if(L) Log.d(LOG_TAG, "Starting the activity for the first time");
+        else
+            if(L) Log.d(LOG_TAG, "Restoring activities instance state");
 
         // set the content view based on device size
         Configuration config = getResources().getConfiguration();
@@ -80,5 +92,73 @@ public class BaseActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+    // Activity LifeCycle methods, added to aid debugging
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if(L) Log.d(LOG_TAG, "Calling onRestart()");
+    }
+
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(L) Log.d(LOG_TAG, "Calling onStart()");
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(L) Log.d(LOG_TAG, "Calling onResume()");
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(L) Log.d(LOG_TAG, "Calling onPause()");
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(L) Log.d(LOG_TAG, "Calling onStop()");
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(L) Log.d(LOG_TAG, "Calling onDestroy()");
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if(L) Log.d(LOG_TAG, "Calling onBackPressed()");
+    }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        if(L) Log.d(LOG_TAG, "Calling onSaveInstanceState()");
+    }
+
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
+        if(L) Log.d(LOG_TAG, "Calling onAttachFragment()");
+    }
+
+
 
 }

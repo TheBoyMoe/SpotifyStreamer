@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,6 +23,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.example.spotifystreamer.R;
+import com.example.spotifystreamer.base.BaseFragment;
 import com.example.spotifystreamer.model.MyTrack;
 import com.example.spotifystreamer.model.TracksArrayAdapter;
 
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class TracksFragment extends Fragment {
+public class TracksFragment extends BaseFragment {
 
     private static final String LOG_TAG = TracksFragment.class.getSimpleName();
     private static final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";

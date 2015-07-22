@@ -3,7 +3,7 @@ package com.example.spotifystreamer.activities;
 import android.os.Bundle;
 
 import com.example.spotifystreamer.R;
-import com.example.spotifystreamer.utils.BaseActivity;
+import com.example.spotifystreamer.base.BaseActivity;
 
 
 public class TracksActivity extends BaseActivity {

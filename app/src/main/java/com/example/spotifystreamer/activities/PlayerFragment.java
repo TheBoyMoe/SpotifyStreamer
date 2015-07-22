@@ -1,6 +1,5 @@
 package com.example.spotifystreamer.activities;
 
-import android.app.Fragment;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.AudioManager;
@@ -19,6 +18,7 @@ import android.widget.TextView;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.model.MyTrack;
+import com.example.spotifystreamer.base.BaseFragment;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -53,13 +53,16 @@ import java.util.List;
  *
  */
 
-public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedListener{
+public class PlayerFragment extends BaseFragment implements MediaPlayer.OnPreparedListener{
 
     private static final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
     private static final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
+    private static final String EXTRA_CURRENT_TRACK = "current_track";
+    private static final String EXTRA_CURRENT_POSITION = "current_position";
+    private static final String EXTRA_CURRENT_SELECTION = "current_selection";
+    private static final String EXTRA_IS_PLAYING = "is_playing";
     private static final String LOG_TAG = PlayerFragment.class.getSimpleName();
-    private final boolean L = false;
-
+    private final boolean L = true;
 
     private ImageButton mPlayPauseButton;
     private ImageButton mPrevButton;
@@ -79,6 +82,7 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
     private List<MyTrack> mTrackList;
     private int mCurrentSelection;
     private MyTrack mCurrentTrack;
+    private boolean mIsPlaying;
 
     public PlayerFragment() {}
 
@@ -89,17 +93,66 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
         // used to update the SeekBar at 1 sec intervals
         mSeekHandler = new Handler();
         mTrackList = new ArrayList<>();
+
     }
 
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // save the current track, track position & playing state to the bundle
+        // so the track can be restored to the same point on device rotation
+        if(L) Log.d(LOG_TAG, "Configuration change, saving current track position");
+        mCurrentPosition = getCurrentPosition();
+        outState.putInt(EXTRA_CURRENT_POSITION, mCurrentPosition);
+        outState.putBoolean(EXTRA_IS_PLAYING, mIsPlaying);
+        outState.putParcelable(EXTRA_CURRENT_TRACK, mCurrentTrack);
+        outState.putInt(EXTRA_CURRENT_SELECTION, mCurrentSelection);
+    }
+
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        // load & start track if the fragment is being instantiated for the first time
+        if(savedInstanceState == null) {
+            if(L) Log.d(LOG_TAG, "Fragment being loaded for the first time");
+            play(mCurrentTrack.getPreviewUrl());
+            mPlayPauseButton.setImageResource(R.drawable.ic_media_pause);
+        } else {
+            // otherwise continue where you left off
+            if(L) Log.d(LOG_TAG, "Reloading saved fragment data");
+            // retrieve saved data
+            mCurrentTrack = savedInstanceState.getParcelable(EXTRA_CURRENT_TRACK);
+            mCurrentPosition = savedInstanceState.getInt(EXTRA_CURRENT_POSITION);
+            mIsPlaying = savedInstanceState.getBoolean(EXTRA_IS_PLAYING);
+            mCurrentSelection = savedInstanceState.getInt(EXTRA_CURRENT_SELECTION);
+
+            // restore the state
+            mSeekBar.setProgress(mCurrentPosition);
+            if(mIsPlaying)
+                mPlayPauseButton.setImageResource(R.drawable.ic_media_pause);
+            else {
+                // the player is paused
+                mTrackTimer.setText(timeFormatter(mCurrentPosition / 1000));
+                mPlayPauseButton.setImageResource(R.drawable.ic_media_play);
+            }
+
+        }
+        // initialize the fragments image & text views
+        initializeAlbumView(mCurrentTrack);
+        initializePlayerViews(mCurrentTrack);
+
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        //View view = inflater.inflate(R.layout.media_player_fragment, container, false);
-
+        // set the media player layout for the appropriate size
         Configuration config = getResources().getConfiguration();
         View view;
-
         if(config.smallestScreenWidthDp >= 600)
             // fragment layout for tablets
             view = inflater.inflate(R.layout.media_player_fragment_large, container, false);
@@ -113,20 +166,11 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
 
         // grab the track list and retrieve the selected track
         Intent intent = getActivity().getIntent();
-
         mTrackList = intent.getParcelableArrayListExtra(EXTRA_TRACK_RESULTS);
         mCurrentSelection = intent.getIntExtra(EXTRA_TRACK_SELECTION, 0);
         mCurrentTrack = mTrackList.get(mCurrentSelection);
 
-        // use it to initialize the text and image views
-        initializeTextViews(mCurrentTrack);
-        initializeImageView(mCurrentTrack);
         mProgressBar.setVisibility(View.INVISIBLE);
-
-        // load & start track as soon as fragment loaded
-        play(mCurrentTrack.getPreviewUrl());
-        mPlayPauseButton.setImageResource(R.drawable.ic_media_pause_white);
-
 
         // wire-up the play/pause button
         mPlayPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -134,26 +178,22 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
             public void onClick(View view) {
 
                 // check if the player is actually playing and act accordingly
-                if (isPlaying()) {
+                if (mIsPlaying) {
+                    // player is currently playing, so pause it
                     mCurrentPosition = getCurrentPosition();
                     if(L) Log.i(LOG_TAG, "isPlaying called, position at: " + mCurrentPosition +
                             " Media Player: " + mMediaPlayer);
                     pause();
                     mSeekHandler.removeCallbacks(onProgressUpdater); // stop updater when paused
-                    mPlayPauseButton.setImageResource(R.drawable.ic_media_play_white);
+                    //mPlayPauseButton.setImageResource(R.drawable.ic_media_play);
                 }
                 else {
-                    // first time through, position not at zero
-                    if(mCurrentPosition > 0 && mMediaPlayer == null) {
-                        if(L) Log.i(LOG_TAG, "First time through, position > 0 position at: "
-                                + mCurrentPosition + " Media Player: " + mMediaPlayer);
-                        play(mCurrentTrack.getPreviewUrl());
-                    } else
                     if(mCurrentPosition > 0) {
                         // paused track being re-started
                         if(L) Log.i(LOG_TAG, "Paused, restarting, position at: " + mCurrentPosition
                                +  " Media Player: " + mMediaPlayer);
                         mSeekHandler.postDelayed(onProgressUpdater, 1000);
+                        //mPlayPauseButton.setImageResource(R.drawable.ic_media_pause);
                         start();
                     }
                     else {
@@ -162,8 +202,6 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
                                 + mCurrentPosition + " Media Player: " + mMediaPlayer);
                         play(mCurrentTrack.getPreviewUrl());
                     }
-
-                    mPlayPauseButton.setImageResource(R.drawable.ic_media_pause_white);
                 }
 
             }
@@ -219,12 +257,14 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
                 }
 
                 if(mCurrentSelection == mTrackList.size() - 1) {
-                    mNextButton.setVisibility(View.INVISIBLE);
+                    mNextButton.setEnabled(false);
+                    mNextButton.setImageResource(R.drawable.ic_media_next_grey);
                 }
 
                 // re-display the Prev Button
                 if(mCurrentSelection == 1) {
-                    mPrevButton.setVisibility(View.VISIBLE);
+                    mPrevButton.setEnabled(true);
+                    mPrevButton.setImageResource(R.drawable.ic_media_prev_white);
                 }
             }
         });
@@ -240,12 +280,14 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
                 }
 
                 if(mCurrentSelection == 0) {
-                    mPrevButton.setVisibility(View.INVISIBLE);
+                    mPrevButton.setEnabled(false);
+                    mPrevButton.setImageResource(R.drawable.ic_media_prev_grey);
                 }
 
                 // re-display the Next button
                 if(mCurrentSelection == mTrackList.size() - 2) {
-                    mNextButton.setVisibility(View.VISIBLE);
+                    mNextButton.setEnabled(true);
+                    mNextButton.setImageResource(R.drawable.ic_media_next_white);
                 }
             }
         });
@@ -256,14 +298,14 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
 
     private void updatePlayer() {
 
-        // update the track selected
+        // update the track selected & ensure it starts from the beginning
         mCurrentTrack = mTrackList.get(mCurrentSelection);
+        mCurrentPosition = 0;
 
         // update view elements with new track info & start track
-        initializeTextViews(mCurrentTrack);
-        initializeImageView(mCurrentTrack);
+        initializePlayerViews(mCurrentTrack);
+        initializeAlbumView(mCurrentTrack);
         play(mCurrentTrack.getPreviewUrl());
-        mPlayPauseButton.setImageResource(R.drawable.ic_media_pause_white);
 
     }
 
@@ -290,6 +332,9 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
         // show the progressbar while loading track
         mProgressBar.setVisibility(View.VISIBLE);
 
+        // set initial view
+        mTrackTimer.setText(R.string.track_timer_initial_value);
+
         // fetch, decode and stream the music file on a bkgd thread thanks to prepareSync()
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -297,7 +342,7 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
             mMediaPlayer.setDataSource(url);
             mMediaPlayer.setLooping(false);
             mMediaPlayer.setOnPreparedListener(this);
-            mMediaPlayer.prepareAsync();
+            mMediaPlayer.prepareAsync(); // calls onPrepared()
         } catch (IOException e) {
             Log.d(LOG_TAG, "Remote file not found: " + e.getMessage());
         }
@@ -318,9 +363,18 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
                         " Media Player: " + mMediaPlayer);
                 mSeekBar.setProgress(mCurrentPosition);
                 mTrackTimer.setText(timeFormatter(mCurrentPosition));
-                mPlayPauseButton.setImageResource(R.drawable.ic_media_play_white);
             }
         });
+
+    }
+
+
+    public void start() {
+        if(mMediaPlayer != null) {
+            mMediaPlayer.start();
+            mIsPlaying = true;
+            mPlayPauseButton.setImageResource(R.drawable.ic_media_pause);
+        }
 
     }
 
@@ -329,13 +383,20 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
         if(mMediaPlayer != null) {
             mMediaPlayer.release();
             mMediaPlayer = null;
+            mIsPlaying = false;
+            mPlayPauseButton.setImageResource(R.drawable.ic_media_play);
         }
     }
 
 
     public void pause() {
-        if(mMediaPlayer != null)
+        if(mMediaPlayer != null) {
             mMediaPlayer.pause();
+            mIsPlaying = false;
+            mPlayPauseButton.setImageResource(R.drawable.ic_media_play);
+        }
+
+
     }
 
 
@@ -357,23 +418,6 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
     }
 
 
-    public void start() {
-        if(mMediaPlayer != null)
-            mMediaPlayer.start();
-    }
-
-
-    // check the media player's state
-    public boolean isPlaying() {
-        boolean isPlaying = false;
-
-        if(mMediaPlayer != null && mMediaPlayer.isPlaying()) {
-            isPlaying = true;
-        }
-        return  isPlaying;
-    }
-
-
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         // when onPrepared() is called, the track is ready to be played
@@ -382,7 +426,6 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
                 " Media Player: " + mMediaPlayer);
         seekTo(mCurrentPosition);
         start();
-
         // start the handler that updates the SeekBar and Timer
         mSeekHandler.postDelayed(onProgressUpdater, 1000);
     }
@@ -432,17 +475,41 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
     }
 
 
-    private void initializeTextViews(MyTrack track) {
+    private void initializePlayerViews(MyTrack track) {
+
+        // text views
         mArtistName.setText(track.getArtistName());
         mAlbumTitle.setText(track.getAlbumTitle());
         mTrackTitle.setText(track.getTrackTitle());
-        mTrackTimer.setText(R.string.track_timer_initial_value);
 
         // format the track duration to suitable output
         //mDuration = track.getTrackDuration();
         mDuration = 30;  // since the media player currently only downloads 30 sec samples
         String result = timeFormatter(mDuration);
         mTrackDuration.setText(result);
+
+        // image views
+        if(mTrackList.size() == 1) {
+            mPrevButton.setImageResource(R.drawable.ic_media_prev_grey);
+            mNextButton.setImageResource(R.drawable.ic_media_next_grey);
+            mPrevButton.setEnabled(false);
+            mNextButton.setEnabled(false);
+        }
+        else if(mCurrentSelection == 0) {
+            mPrevButton.setImageResource(R.drawable.ic_media_prev_grey);
+            mNextButton.setImageResource(R.drawable.ic_media_next_white);
+            mPrevButton.setEnabled(false);
+        }
+        else if(mCurrentSelection == mTrackList.size() - 1) {
+            mPrevButton.setImageResource(R.drawable.ic_media_prev_white);
+            mNextButton.setImageResource(R.drawable.ic_media_next_grey);
+            mNextButton.setEnabled(false);
+        }
+        else {
+            Log.d(LOG_TAG, "Elsewhere isPlaying " + mIsPlaying);
+            mPrevButton.setImageResource(R.drawable.ic_media_prev_white);
+            mNextButton.setImageResource(R.drawable.ic_media_next_white);
+        }
     }
 
 
@@ -453,7 +520,7 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
     }
 
 
-    private void initializeImageView(MyTrack track) {
+    private void initializeAlbumView(MyTrack track) {
         Picasso.with(getActivity())
                 .load(track.getImageUrl())
                 .resize(320, 320)
