@@ -6,25 +6,10 @@ package com.example.spotifystreamer.activities;
  */
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.provider.SearchRecentSuggestions;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -32,23 +17,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.example.spotifystreamer.R;
+import com.example.spotifystreamer.base.BaseFragment;
 import com.example.spotifystreamer.model.Artist;
 import com.example.spotifystreamer.model.ArtistsArrayAdapter;
-import com.example.spotifystreamer.model.QuerySuggestionProvider;
-import com.example.spotifystreamer.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.ArtistsPager;
-import kaaes.spotify.webapi.android.models.Image;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 
 /**
@@ -58,34 +32,40 @@ import retrofit.client.Response;
  * http://developer.android.com/guide/topics/search/adding-recent-query-suggestions.html
  */
 
-public class ArtistsFragment extends Fragment implements  SearchView.OnQueryTextListener{
+public class ArtistsFragment extends BaseFragment{
 
     private static final String LOG_TAG = ArtistsFragment.class.getSimpleName();
     private final boolean L = false;
 
-    // private final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
-    private final String PREFS_RESULTS_RETURNED = "pref_key_result_returned";
-    private final String PREF_COUNTRY_KEY = "pref_key_country_code";
+    private static final String EXTRA_ARTIST_RESULTS = "com.example.spotifystreamer.activities.artists";
 
     private ListView mListView;
     private ArtistsArrayAdapter mArtistsAdapter;
     private List<Artist> mArtists;
-    private SearchView mSearchView;
-    private static SearchRecentSuggestions sSearchRecentSuggestions;
-    private MenuItem mSearchMenuItem;
     private ProgressBar mProgressBar;
-    private SpotifyApi mApi;
-    private SpotifyService mSpotifyService;
-    private String mCountry;
-    private String mLimit;
-    private Map<String, Object> mOptions;
     private OnArtistSelectedListener mCallback;
 
 
     public ArtistsFragment() { }
 
 
-    // Callback Interface allowing communication between fragment and hosting activity
+    // newInstance() method instantiates a fragment with an added args bundle
+    public static ArtistsFragment newInstance(List<Artist> artists) {
+        // create a bundle, add the photo object
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(EXTRA_ARTIST_RESULTS,
+                (ArrayList<? extends Parcelable>) artists);
+
+        // instantiate a new fragment and add the bundle
+        ArtistsFragment fragment = new ArtistsFragment();
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
+
+    // Callback Interface allowing communication between Artist and Tracks
+    // fragments via the hosting activity - MainActivity
     public interface OnArtistSelectedListener {
         void onArtistSelected(String artistName, String artistId);
     }
@@ -114,21 +94,11 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
 
         // instantiate the various collections used
         mArtists = new ArrayList<>();
-        mOptions = new HashMap<>();
 
-        // instantiate the Spotify Service Wrapper
-        mApi = new SpotifyApi();
-        mSpotifyService = mApi.getService();
-
-        setHasOptionsMenu(true); // add the search menu item
-
-        // ??? NOT CALLED when
-        ActionBar toolbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if(toolbar != null) {
-            toolbar.setDisplayHomeAsUpEnabled(false);
-            toolbar.setTitle(R.string.app_name);
-            toolbar.setSubtitle(null);
-        }
+        // retrieve and args passed to the fragment and populate the tracks array list
+        Bundle args = getArguments();
+        if(args != null)
+            mArtists = args.getParcelableArrayList(EXTRA_ARTIST_RESULTS);
 
     }
 
@@ -154,12 +124,9 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
                 String artistName = artist.getName();
                 String artistId = artist.getId();
 
-
                 mCallback.onArtistSelected(artistName, artistId);
                 if(L) Log.d(LOG_TAG, "Clicked on position " + position
                         + ", " + artistName + ", artistId " + artistId);
-
-
             }
         });
 
@@ -167,219 +134,16 @@ public class ArtistsFragment extends Fragment implements  SearchView.OnQueryText
         if(savedInstanceState == null) {
             // instantiate the ArrayAdapter and bind it to the ListView
             // when the fragment is first instantiated
-            mArtistsAdapter = new ArtistsArrayAdapter(getActivity(), mArtists);
-            mListView.setAdapter(mArtistsAdapter);
+            if(mArtists != null) {
+                mArtistsAdapter = new ArtistsArrayAdapter(getActivity(), mArtists);
+                mListView.setAdapter(mArtistsAdapter);
+            }
         } else {
             // re-bind the adapter to the listview on device rotation
             mListView.setAdapter(mArtistsAdapter);
         }
 
         return view;
-    }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // retrieve user preferences from SharedPreferences
-        SharedPreferences prefs =
-                PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-        mCountry = prefs.getString(PREF_COUNTRY_KEY,
-                getActivity().getString(R.string.pref_country_code_default));
-        if(mCountry.isEmpty())
-            mCountry = getActivity().getString(R.string.pref_country_code_default);
-        mLimit = prefs.getString(PREFS_RESULTS_RETURNED,
-                getActivity().getString(R.string.pref_results_returned_default));
-
-    }
-
-    // Add SearchView to the ToolBar
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-
-        inflater.inflate(R.menu.menu_search, menu);
-
-        // instantiate the SearchView and set the searchable configuration
-        SearchManager mgr = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
-        mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        mSearchView.setSearchableInfo(mgr.getSearchableInfo(getActivity().getComponentName()));
-        mSearchView.setSubmitButtonEnabled(true);
-        mSearchView.setOnQueryTextListener(this);
-        mSearchView.setQueryRefinementEnabled(true);
-
-        // cache a reference to the SearchMenuItem
-        mSearchMenuItem = menu.findItem(R.id.action_search);
-
-    }
-
-
-    // submit artist search through the Spotify Web API Wrapper
-    @Override
-    public boolean onQueryTextSubmit(final String query) {
-
-        // hide softkeyboard upon submitting search
-        Utils.hideKeyboard(getActivity(), mSearchView.getWindowToken());
-
-        // close the search menu item
-        mSearchMenuItem.collapseActionView();
-
-        // save the search query to the RecentSuggestionsProvider
-        sSearchRecentSuggestions = new SearchRecentSuggestions(getActivity(),
-                QuerySuggestionProvider.AUTHORITY, QuerySuggestionProvider.MODE);
-        sSearchRecentSuggestions.saveRecentQuery(query, null);
-
-        // set Artist top-track options
-        mOptions.clear();
-        mOptions.put("limit", mLimit);
-        mOptions.put("country", mCountry);
-
-        // clear the listview and display the progress spinner
-        if(!mArtistsAdapter.isEmpty())
-            mArtistsAdapter.clear();
-        mProgressBar.setVisibility(View.VISIBLE);
-
-        // execute the search on a background thread
-        mSpotifyService.searchArtists(query, mOptions, new Callback<ArtistsPager>() {
-
-            @Override
-            public void success(final ArtistsPager artistsPager, final Response response) {
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (L) Log.i(LOG_TAG, "Search for query: " + query
-                                + ", returned records: " + artistsPager.artists.total);
-
-                        if (artistsPager.artists.total > 0) {
-                            // retrieve a list of artist objects
-                            List<kaaes.spotify.webapi.android.models.Artist> artistList =
-                                    artistsPager.artists.items;
-
-                            for (int i = 0; i < artistList.size(); i++) {
-                                kaaes.spotify.webapi.android.models.Artist artist = artistList.get(i);
-                                String name = artist.name;
-                                String id = artist.id;
-                                if (L) {
-                                    String str = String.format("Artist : %s, id: %s", name, id);
-                                    Log.i(LOG_TAG, str);
-                                }
-
-                                // retrieve an appropriately sized image for the artist thumbnail,
-                                // between 200 and 400px in width, and cache it's url
-                                String imageUrl = null;
-                                List<Image> imageList = artist.images;
-                                for (int j = 0; j < imageList.size(); j++) {
-                                    Image img = imageList.get(j);
-                                    if (img.width >= 200 && img.width < 400) {
-                                        imageUrl = img.url;
-                                    }
-                                }
-
-                                // instantiate app artist object and populate the Artist ArrayList
-                                Artist retrievedArtist = new Artist(id, name, imageUrl);
-                                mArtists.add(retrievedArtist);
-                            }
-
-                            //update ArtistAdapter and ListView
-                            mArtistsAdapter.updateView(mArtists);
-
-                        } else {
-                            // No results found, http status code returned 200
-                            Utils.showToast(getActivity(), "No results found for " + query);
-                        }
-                        // hide the progressbar
-                        mProgressBar.setVisibility(View.GONE);
-                    }
-                });
-
-            }
-
-            @Override
-            public void failure(final RetrofitError error) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (error.getResponse() != null) {
-                            // server problems & 404 not found errors
-                            Log.d(LOG_TAG, "Error executing artist search, status code : "
-                                    + error.getResponse().getStatus() + ", error message: " + error.getMessage());
-                            Utils.showToast(getActivity(), "No results found for " + query);
-                        } else {
-                            // failure due to network problem
-                            Utils.showToast(getActivity(), "Network error, check connection");
-                        }
-                        // hide the progressbar
-                        mProgressBar.setVisibility(View.GONE);
-                    }
-                });
-
-            }
-
-        });
-
-        return true;
-    }
-
-
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        // not used - req'd by SearchView implementation
-        return false;
-    }
-
-
-    // Clear the search cache from the device
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        if(item.getItemId() == R.id.action_delete) {
-
-            if(sSearchRecentSuggestions != null) {
-
-                DialogFragment dialog = new ConfirmationDialogFragment();
-                dialog.show(getFragmentManager(), "Clear History");
-
-
-            } else {
-                Utils.showToast(getActivity(), "No history saved");
-            }
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
-    // Search cache confirmation dialog
-    public static class ConfirmationDialogFragment extends DialogFragment {
-
-        public ConfirmationDialogFragment() {}
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage(R.string.confirmation_dialog_message)
-                    .setPositiveButton(R.string.confirmation_dialog_positive_button,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    sSearchRecentSuggestions.clearHistory();
-                                    sSearchRecentSuggestions = null;
-                                    Utils.showToast(getActivity(), "Search history cleared");
-                                }
-                            })
-                    .setNegativeButton(R.string.confirmation_dialog_negative_button,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    Utils.showToast(getActivity(), "Action cancelled");
-                                }
-                            });
-
-            return builder.create();
-        }
     }
 
 

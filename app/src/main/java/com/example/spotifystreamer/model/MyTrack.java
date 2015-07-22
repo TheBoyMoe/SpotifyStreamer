@@ -4,8 +4,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- *  Used the Parcelabler tool @ http://www.parcelabler.com
- *  by Dallas Gutauckis to build the Parcelable methods
+ *
+ * Parcelable POJO for holding the track information
+ *
+ * Used the Parcelabler tool @ http://www.parcelabler.com
+ * by Dallas Gutauckis to build the Parcelable methods
+ *
  */
 
 public class MyTrack implements Parcelable {

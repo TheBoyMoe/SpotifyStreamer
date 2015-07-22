@@ -1,14 +1,26 @@
 package com.example.spotifystreamer.activities;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.SearchRecentSuggestions;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.base.BaseActivity;
+import com.example.spotifystreamer.model.Artist;
 import com.example.spotifystreamer.model.MyTrack;
+import com.example.spotifystreamer.model.QuerySuggestionProvider;
 import com.example.spotifystreamer.utils.Utils;
 
 import java.util.ArrayList;
@@ -19,6 +31,7 @@ import java.util.Map;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.AlbumSimple;
+import kaaes.spotify.webapi.android.models.ArtistsPager;
 import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
@@ -33,19 +46,27 @@ import retrofit.client.Response;
  * http://android-developers.blogspot.co.uk/2011/07/new-tools-for-managing-screen-sizes.html
  */
 public class MainActivity extends BaseActivity
-        implements ArtistsFragment.OnArtistSelectedListener {
+        implements ArtistsFragment.OnArtistSelectedListener,
+                   SearchView.OnQueryTextListener{
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private final boolean L = false;
 
     private final String EXTRA_TWO_PANE = "two_pane";
     private final String PREF_COUNTRY_KEY = "pref_key_country_code";
+    private final String PREFS_RESULTS_RETURNED = "pref_key_result_returned";
+
+    private SearchView mSearchView;
+    private static SearchRecentSuggestions sSearchRecentSuggestions;
+    private MenuItem mSearchMenuItem;
     private SpotifyApi mApi;
     private SpotifyService mSpotifyService;
     private String mCountry;
     private Map<String, Object> mOptions;
     private List<MyTrack> mTracks;
+    private List<Artist> mArtists;
     private boolean mTwoPane;
+    private String mLimit;
 
 
     @Override
@@ -77,6 +98,7 @@ public class MainActivity extends BaseActivity
             }
         }
 
+        mArtists = new ArrayList<>();
         mTracks = new ArrayList<>();
         mOptions = new HashMap<>();
 
@@ -109,11 +131,203 @@ public class MainActivity extends BaseActivity
         mCountry = prefs.getString(PREF_COUNTRY_KEY, getString(R.string.pref_country_code_default));
         if(mCountry.isEmpty())
             mCountry = getString(R.string.pref_country_code_default);
+        mLimit = prefs.getString(PREFS_RESULTS_RETURNED,
+                getString(R.string.pref_results_returned_default));
 
-        // pass to options, used to execute search
+        // add the retrieved saved preferences to Retrofit's config HashMap object
         mOptions.put("country", mCountry);
+        mOptions.put("limit", mLimit);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        // instantiate the SearchView and set the searchable configuration
+        SearchManager mgr = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        mSearchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        mSearchView.setSearchableInfo(mgr.getSearchableInfo(getComponentName()));
+        mSearchView.setSubmitButtonEnabled(true);
+        mSearchView.setOnQueryTextListener(this);
+        mSearchView.setQueryRefinementEnabled(true);
+
+        // cache a reference to the SearchMenuItem
+        mSearchMenuItem = menu.findItem(R.id.action_search);
+
+        return true;
+    }
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+    // Business Logic - deals with artist search and track download                     ///
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+
+    // submit artist search through the Spotify Web API Wrapper
+    @Override
+    public boolean onQueryTextSubmit(final String query) {
+
+        // hide softkeyboard upon submitting search
+        Utils.hideKeyboard(MainActivity.this, mSearchView.getWindowToken());
+
+        // close the search menu item
+        mSearchMenuItem.collapseActionView();
+
+        // save the search query to the RecentSuggestionsProvider
+        sSearchRecentSuggestions = new SearchRecentSuggestions(MainActivity.this,
+                QuerySuggestionProvider.AUTHORITY, QuerySuggestionProvider.MODE);
+        sSearchRecentSuggestions.saveRecentQuery(query, null);
+
+        // clear the listview and display the progress spinner
+//        if(!mArtistsAdapter.isEmpty())
+//            mArtistsAdapter.clear();
+//        mProgressBar.setVisibility(View.VISIBLE);
+
+        // execute the search on a background thread
+        mSpotifyService.searchArtists(query, mOptions, new Callback<ArtistsPager>() {
+
+            @Override
+            public void success(final ArtistsPager artistsPager, final Response response) {
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (L) Log.i(LOG_TAG, "Search for query: " + query
+                                + ", returned records: " + artistsPager.artists.total);
+
+                        if (artistsPager.artists.total > 0) {
+                            // retrieve a list of artist objects
+                            List<kaaes.spotify.webapi.android.models.Artist> artistList =
+                                    artistsPager.artists.items;
+
+                            for (int i = 0; i < artistList.size(); i++) {
+                                kaaes.spotify.webapi.android.models.Artist artist = artistList.get(i);
+                                String name = artist.name;
+                                String id = artist.id;
+                                if (L) {
+                                    String str = String.format("Artist : %s, id: %s", name, id);
+                                    Log.i(LOG_TAG, str);
+                                }
+
+                                // retrieve an appropriately sized image for the artist thumbnail,
+                                // between 200 and 400px in width, and cache it's url
+                                String imageUrl = null;
+                                List<Image> imageList = artist.images;
+                                for (int j = 0; j < imageList.size(); j++) {
+                                    Image img = imageList.get(j);
+                                    if (img.width >= 200 && img.width < 400) {
+                                        imageUrl = img.url;
+                                    }
+                                }
+
+                                // instantiate app artist object and populate the Artist ArrayList
+                                Artist retrievedArtist = new Artist(id, name, imageUrl);
+                                mArtists.add(retrievedArtist);
+                            }
+
+                            //update ArtistAdapter and ListView
+                            //mArtistsAdapter.updateView(mArtists);
+
+                            // instantiate the ArtistsFragment
+                            addArtistFragment();
+
+                        } else {
+                            // No results found, http status code returned 200
+                            Utils.showToast(MainActivity.this, "No results found for " + query);
+                        }
+                        // hide the progressbar
+                        //mProgressBar.setVisibility(View.GONE);
+                    }
+                });
+
+            }
+
+            @Override
+            public void failure(final RetrofitError error) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (error.getResponse() != null) {
+                            // server problems & 404 not found errors
+                            Log.d(LOG_TAG, "Error executing artist search, status code : "
+                                    + error.getResponse().getStatus() + ", error message: " + error.getMessage());
+                            Utils.showToast(MainActivity.this, "No results found for " + query);
+                        } else {
+                            // failure due to network problem
+                            Utils.showToast(MainActivity.this, "Network error, check connection");
+                        }
+                        // hide the progressbar
+                        //mProgressBar.setVisibility(View.GONE);
+                    }
+                });
+
+            }
+
+        });
+
+        return true;
+    }
+
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        // not used - req'd by SearchView implementation
+        return false;
+    }
+
+
+    // Clear the search cache from the device
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(item.getItemId() == R.id.action_delete) {
+
+            if(sSearchRecentSuggestions != null) {
+                DialogFragment dialog = new ConfirmationDialogFragment();
+                dialog.show(getSupportFragmentManager(), "Clear History");
+            } else {
+                Utils.showToast(MainActivity.this, "No history saved");
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    // Search cache confirmation dialog
+    public static class ConfirmationDialogFragment extends DialogFragment {
+
+        public ConfirmationDialogFragment() {}
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.confirmation_dialog_message)
+                    .setPositiveButton(R.string.confirmation_dialog_positive_button,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    sSearchRecentSuggestions.clearHistory();
+                                    sSearchRecentSuggestions = null;
+                                    Utils.showToast(getActivity(), "Search history cleared");
+                                }
+                            })
+                    .setNegativeButton(R.string.confirmation_dialog_negative_button,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Utils.showToast(getActivity(), "Action cancelled");
+                                }
+                            });
+
+            return builder.create();
+        }
 
     }
+
+
 
     // execute the Top Ten MyTrack download for the selected artist
     // Implements the OnArtistSelectedListener of the Artists Fragment
@@ -222,6 +436,15 @@ public class MainActivity extends BaseActivity
         ft.commit();
     }
 
+
+    // instantiate the Artist fragment
+    private void addArtistFragment() {
+        // instantiate a new ArtistsFragment passing in the artists list
+        ArtistsFragment artistsFragment = ArtistsFragment.newInstance(mArtists);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment_container, artistsFragment);
+        ft.commit();
+    }
 
 
 }
