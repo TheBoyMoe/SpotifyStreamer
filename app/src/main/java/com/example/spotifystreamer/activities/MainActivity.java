@@ -82,9 +82,10 @@ public class MainActivity extends BaseActivity
                 Log.d(LOG_TAG, "On a tablet!");
                 mTwoPane = true;
                 // instantiate the tracks fragment and add it
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.tracks_fragment_container, new TracksFragment())
-                        .commit();
+//                getSupportFragmentManager().beginTransaction()
+//                        .add(R.id.fragment_container, new ArtistsFragment())
+//                        .add(R.id.tracks_fragment_container, new TracksFragment())
+//                        .commit();
 
             } else {
                 // must be a phone
@@ -92,9 +93,9 @@ public class MainActivity extends BaseActivity
                 mTwoPane = false;
 
                 // first time in, instantiate the fragment
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.fragment_container, new ArtistsFragment())
-                        .commit();
+//                getSupportFragmentManager().beginTransaction()
+//                        .add(R.id.fragment_container, new ArtistsFragment())
+//                        .commit();
             }
         }
 
@@ -169,21 +170,20 @@ public class MainActivity extends BaseActivity
     @Override
     public boolean onQueryTextSubmit(final String query) {
 
+        if(L) Log.d(LOG_TAG, "Search query: "  + query);
         // hide softkeyboard upon submitting search
         Utils.hideKeyboard(MainActivity.this, mSearchView.getWindowToken());
 
         // close the search menu item
         mSearchMenuItem.collapseActionView();
 
+        // clear the artist array list, so you're not continuously adding to it
+        mArtists.clear();
+
         // save the search query to the RecentSuggestionsProvider
         sSearchRecentSuggestions = new SearchRecentSuggestions(MainActivity.this,
                 QuerySuggestionProvider.AUTHORITY, QuerySuggestionProvider.MODE);
         sSearchRecentSuggestions.saveRecentQuery(query, null);
-
-        // clear the listview and display the progress spinner
-//        if(!mArtistsAdapter.isEmpty())
-//            mArtistsAdapter.clear();
-//        mProgressBar.setVisibility(View.VISIBLE);
 
         // execute the search on a background thread
         mSpotifyService.searchArtists(query, mOptions, new Callback<ArtistsPager>() {
@@ -227,9 +227,6 @@ public class MainActivity extends BaseActivity
                                 mArtists.add(retrievedArtist);
                             }
 
-                            //update ArtistAdapter and ListView
-                            //mArtistsAdapter.updateView(mArtists);
-
                             // instantiate the ArtistsFragment
                             addArtistFragment();
 
@@ -237,11 +234,8 @@ public class MainActivity extends BaseActivity
                             // No results found, http status code returned 200
                             Utils.showToast(MainActivity.this, "No results found for " + query);
                         }
-                        // hide the progressbar
-                        //mProgressBar.setVisibility(View.GONE);
                     }
                 });
-
             }
 
             @Override
@@ -422,17 +416,18 @@ public class MainActivity extends BaseActivity
 
          // If we're on the tablet
         if(mTwoPane) {
-            // update the tracks fragment
+            // update the tracks fragment, not using the backstack on the tablet
             ft.replace(R.id.tracks_fragment_container, newTracksFragment);
 
         } else {
 
             // you're on a phone, swap the artists fragment
-            // with the tracks fragment
+            // with the tracks fragment, adding the fragment to the backstack
             ft.replace(R.id.fragment_container, newTracksFragment);
+            ft.addToBackStack(null);
         }
         // add the fragment to the BackStack so it's not destroyed & commit the transaction
-        ft.addToBackStack(null);
+        //ft.addToBackStack(null);
         ft.commit();
     }
 
@@ -440,6 +435,7 @@ public class MainActivity extends BaseActivity
     // instantiate the Artist fragment
     private void addArtistFragment() {
         // instantiate a new ArtistsFragment passing in the artists list
+        Log.d(LOG_TAG, "Artist list: " + mArtists);
         ArtistsFragment artistsFragment = ArtistsFragment.newInstance(mArtists);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_container, artistsFragment);
