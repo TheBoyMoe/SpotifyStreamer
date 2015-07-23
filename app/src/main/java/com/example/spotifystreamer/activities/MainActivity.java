@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
@@ -71,6 +72,7 @@ public class MainActivity extends BaseActivity
     private List<Artist> mArtists;
     private boolean mTwoPane;
     private String mLimit;
+    //private FragmentTransaction mFragmentTransaction;
 
 
     @Override
@@ -172,18 +174,6 @@ public class MainActivity extends BaseActivity
     }
 
 
-//    @Override
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//
-//        if(!mTwoPane) {
-//            boolean stackCount = getSupportFragmentManager().getBackStackEntryCount() > 0;
-//            if(!stackCount)
-//                finish();
-//        }
-//
-//    }
-
 
     ///////////////////////////////////////////////////////////////////////////////////////
     // Business Logic - deals with artist search and track download                     ///
@@ -284,8 +274,14 @@ public class MainActivity extends BaseActivity
 
         });
 
+        // on tablets, remove the tracks fragment & artist name
+        // whether or not the search succeeds
+        if(mTwoPane)
+            clearTabletUI();
+
         return true;
     }
+
 
 
     @Override
@@ -469,6 +465,25 @@ public class MainActivity extends BaseActivity
         if(L) Log.d(LOG_TAG, "Adding artist fragment, stack count: " + getSupportFragmentManager().getBackStackEntryCount());
         ft.commit();
     }
+
+
+    private void clearTabletUI() {
+
+        // clear the actionbar title & subtitle
+        ActionBar toolbar = getSupportActionBar();
+        if(toolbar != null) {
+            toolbar.setTitle(R.string.app_name);
+            toolbar.setSubtitle("");
+        }
+
+        // clear the tracks fragment
+        TracksFragment blank = new TracksFragment();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.tracks_fragment_container, blank);
+        ft.commit();
+    }
+
+
 
 
 }

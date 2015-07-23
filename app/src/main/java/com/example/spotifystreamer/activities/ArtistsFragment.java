@@ -124,9 +124,9 @@ public class ArtistsFragment extends BaseFragment{
             if(!mTwoPane) {
                 // reverse changes implemented by Tracks fragment
                 toolbar.setDisplayHomeAsUpEnabled(false); // display home icon
-                toolbar.setTitle(R.string.app_name);
-                toolbar.setSubtitle("");
             }
+            toolbar.setTitle(R.string.app_name);
+            toolbar.setSubtitle("");
         }
 
 
