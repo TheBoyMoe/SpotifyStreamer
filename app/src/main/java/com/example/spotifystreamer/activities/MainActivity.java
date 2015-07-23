@@ -72,7 +72,6 @@ public class MainActivity extends BaseActivity
     private List<Artist> mArtists;
     private boolean mTwoPane;
     private String mLimit;
-    //private FragmentTransaction mFragmentTransaction;
 
 
     @Override
@@ -87,21 +86,10 @@ public class MainActivity extends BaseActivity
                 // two pane layout - tablet
                 Log.d(LOG_TAG, "On a tablet!");
                 mTwoPane = true;
-                // instantiate the tracks fragment and add it
-//                getSupportFragmentManager().beginTransaction()
-//                        .add(R.id.fragment_container, new ArtistsFragment())
-//                        .add(R.id.tracks_fragment_container, new TracksFragment())
-//                        .commit();
-
             } else {
                 // must be a phone
                 Log.d(LOG_TAG, "On the phone!");
                 mTwoPane = false;
-
-                // first time in, instantiate the fragment
-//                getSupportFragmentManager().beginTransaction()
-//                        .add(R.id.fragment_container, new ArtistsFragment())
-//                        .commit();
             }
         }
 
@@ -400,9 +388,12 @@ public class MainActivity extends BaseActivity
                         if (mTracks.size() > 0) {
                             updateTracksFragment();
                         } else {
-                            if(L) Log.i(LOG_TAG, "No tracks found, array size: " + mTracks.size());
+                            if (L) Log.i(LOG_TAG, "No tracks found, array size: " + mTracks.size());
                             Utils.showToast(MainActivity.this, "Track list not available");
+                            if(mTwoPane)
+                                clearTracksFragment();
                         }
+
                     }
                 });
             }
@@ -433,8 +424,7 @@ public class MainActivity extends BaseActivity
         // instantiate a new TracksFragment containing the tracks bundle
         TracksFragment newTracksFragment = TracksFragment.newInstance(mTracks, mTwoPane);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-
-         // If we're on the tablet
+        // If we're on the tablet
         if(mTwoPane) {
             // update the tracks fragment, not using the backstack on the tablet
             ft.replace(R.id.tracks_fragment_container, newTracksFragment);
@@ -446,6 +436,7 @@ public class MainActivity extends BaseActivity
             ft.replace(R.id.fragment_container, newTracksFragment);
             ft.addToBackStack(null);
         }
+
         ft.commit();
     }
 
@@ -484,6 +475,11 @@ public class MainActivity extends BaseActivity
     }
 
 
-
+    private void clearTracksFragment() {
+        TracksFragment blankFragment = new TracksFragment();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.tracks_fragment_container, blankFragment);
+        ft.commit();
+    }
 
 }

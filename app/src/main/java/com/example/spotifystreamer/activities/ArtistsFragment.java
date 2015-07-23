@@ -1,10 +1,5 @@
 package com.example.spotifystreamer.activities;
 
-/**
- * Thanks to user henry_27571687391820 for Callbacks fix
- * http://discussions.udacity.com/t/asynctask-vs-callbacks/21223
- */
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -32,6 +27,13 @@ import java.util.List;
  * https://developer.android.com/training/search/setup.html
  * http://antonioleiva.com/actionbarcompat-action-views/
  * http://developer.android.com/guide/topics/search/adding-recent-query-suggestions.html
+ *
+ * Thanks to user henry_27571687391820 for Callbacks fix
+ * http://discussions.udacity.com/t/asynctask-vs-callbacks/21223
+ *
+ * Highlighting selected list items:
+ * http://stackoverflow.com/questions/16189651/android-listview-selected-item-stay-highlighted
+ *
  */
 
 public class ArtistsFragment extends BaseFragment{
@@ -134,6 +136,9 @@ public class ArtistsFragment extends BaseFragment{
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
+
+                if(mTwoPane)
+                    view.setSelected(true);
 
                 // retrieve id & name of the particular artist &
                 // use the callback to pass up to the activity
