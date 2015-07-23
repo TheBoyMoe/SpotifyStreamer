@@ -1,5 +1,10 @@
 package com.example.spotifystreamer.activities;
 
+/**
+ * NOT CURRENTLY BEING USED
+ */
+
+
 import android.os.Bundle;
 
 import com.example.spotifystreamer.R;

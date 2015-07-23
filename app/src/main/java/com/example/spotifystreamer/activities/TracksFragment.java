@@ -32,24 +32,26 @@ public class TracksFragment extends BaseFragment {
 
     private static final String LOG_TAG = TracksFragment.class.getSimpleName();
     private static final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
+    private static final String EXTRA_TWO_PANE = "two_pane";
     private final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
 
     private TracksArrayAdapter mTracksAdapter;
     private ListView mListView;
     private List<MyTrack> mTrackList;
     private ProgressBar mProgressBar;
-
+    private boolean mTwoPane;
 
 
     public TracksFragment() { }
 
 
     // newInstance() method instantiates a fragment with an added args bundle
-    public static TracksFragment newInstance(List<MyTrack> tracks) {
+    public static TracksFragment newInstance(List<MyTrack> tracks, boolean twoPane) {
         // create a bundle, add the photo object
         Bundle args = new Bundle();
         args.putParcelableArrayList(EXTRA_TRACK_RESULTS,
                 (ArrayList<? extends Parcelable>) tracks);
+        args.putBoolean(EXTRA_TWO_PANE, twoPane);
 
         // instantiate a new fragment and add the bundle
         TracksFragment fragment = new TracksFragment();
@@ -68,8 +70,10 @@ public class TracksFragment extends BaseFragment {
 
         // retrieve and args passed to the fragment and populate the tracks array list
         Bundle args = getArguments();
-        if(args != null)
+        if(args != null) {
             mTrackList = args.getParcelableArrayList(EXTRA_TRACK_RESULTS);
+            mTwoPane = args.getBoolean(EXTRA_TWO_PANE);
+        }
 
     }
 
@@ -88,7 +92,9 @@ public class TracksFragment extends BaseFragment {
             // add the Artist name as subtitle to the ToolBar
             ActionBar toolbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
             if(toolbar != null && !mTrackList.isEmpty()) {
-                toolbar.setDisplayHomeAsUpEnabled(true);
+                if(!mTwoPane) {
+                    toolbar.setDisplayHomeAsUpEnabled(true); // display home icon
+                }
                 toolbar.setTitle(R.string.top_ten_tracks);
                 toolbar.setSubtitle(mTrackList.get(0).getArtistName());
             }

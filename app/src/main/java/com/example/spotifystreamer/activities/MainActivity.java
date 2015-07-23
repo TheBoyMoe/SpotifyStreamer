@@ -44,6 +44,10 @@ import retrofit.client.Response;
  * http://developer.android.com/guide/components/fragments.html
  * http://developer.android.com/training/basics/fragments/index.html
  * http://android-developers.blogspot.co.uk/2011/07/new-tools-for-managing-screen-sizes.html
+ *
+ * pop fragments off the stack
+ * http://stackoverflow.com/questions/13086840/actionbar-up-navigation-with-fragments
+ *
  */
 public class MainActivity extends BaseActivity
         implements ArtistsFragment.OnArtistSelectedListener,
@@ -160,6 +164,26 @@ public class MainActivity extends BaseActivity
     }
 
 
+    // 'pop' the top fragment(TracksFragment) off the stack when the home button is clicked
+    @Override
+    public boolean onSupportNavigateUp() {
+        getSupportFragmentManager().popBackStack();
+        return true;
+    }
+
+
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//
+//        if(!mTwoPane) {
+//            boolean stackCount = getSupportFragmentManager().getBackStackEntryCount() > 0;
+//            if(!stackCount)
+//                finish();
+//        }
+//
+//    }
+
 
     ///////////////////////////////////////////////////////////////////////////////////////
     // Business Logic - deals with artist search and track download                     ///
@@ -170,7 +194,7 @@ public class MainActivity extends BaseActivity
     @Override
     public boolean onQueryTextSubmit(final String query) {
 
-        if(L) Log.d(LOG_TAG, "Search query: "  + query);
+        if(L) Log.d(LOG_TAG, "Search query: " + query);
         // hide softkeyboard upon submitting search
         Utils.hideKeyboard(MainActivity.this, mSearchView.getWindowToken());
 
@@ -252,8 +276,7 @@ public class MainActivity extends BaseActivity
                             // failure due to network problem
                             Utils.showToast(MainActivity.this, "Network error, check connection");
                         }
-                        // hide the progressbar
-                        //mProgressBar.setVisibility(View.GONE);
+
                     }
                 });
 
@@ -289,7 +312,8 @@ public class MainActivity extends BaseActivity
     }
 
 
-    // Search cache confirmation dialog
+    // Create and display the search cache confirmation dialog
+    // which allows you to clear the devices saved searches
     public static class ConfirmationDialogFragment extends DialogFragment {
 
         public ConfirmationDialogFragment() {}
@@ -328,7 +352,7 @@ public class MainActivity extends BaseActivity
     @Override
     public void onArtistSelected(final String artistName, final String artistId) {
 
-        // clear any results in case user presses the back button
+        // clear the results of the previous download
         if(mTracks != null)
             mTracks.clear();
 
@@ -411,7 +435,7 @@ public class MainActivity extends BaseActivity
     private void updateTracksFragment() {
 
         // instantiate a new TracksFragment containing the tracks bundle
-        TracksFragment newTracksFragment = TracksFragment.newInstance(mTracks);
+        TracksFragment newTracksFragment = TracksFragment.newInstance(mTracks, mTwoPane);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
          // If we're on the tablet
@@ -426,8 +450,6 @@ public class MainActivity extends BaseActivity
             ft.replace(R.id.fragment_container, newTracksFragment);
             ft.addToBackStack(null);
         }
-        // add the fragment to the BackStack so it's not destroyed & commit the transaction
-        //ft.addToBackStack(null);
         ft.commit();
     }
 
@@ -435,10 +457,16 @@ public class MainActivity extends BaseActivity
     // instantiate the Artist fragment
     private void addArtistFragment() {
         // instantiate a new ArtistsFragment passing in the artists list
-        Log.d(LOG_TAG, "Artist list: " + mArtists);
-        ArtistsFragment artistsFragment = ArtistsFragment.newInstance(mArtists);
+        if(L) Log.d(LOG_TAG, "Artist list: " + mArtists);
+
+        // ensure there is only one artist fragment on hte back stack,
+        // otherwise the Back button will not function as expected
+        getSupportFragmentManager().popBackStack();
+
+        ArtistsFragment artistsFragment = ArtistsFragment.newInstance(mArtists, mTwoPane);
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_container, artistsFragment);
+        if(L) Log.d(LOG_TAG, "Adding artist fragment, stack count: " + getSupportFragmentManager().getBackStackEntryCount());
         ft.commit();
     }
 

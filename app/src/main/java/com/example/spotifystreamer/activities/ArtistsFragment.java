@@ -8,6 +8,8 @@ package com.example.spotifystreamer.activities;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,25 +38,26 @@ public class ArtistsFragment extends BaseFragment{
 
     private static final String LOG_TAG = ArtistsFragment.class.getSimpleName();
     private final boolean L = false;
-
     private static final String EXTRA_ARTIST_RESULTS = "com.example.spotifystreamer.activities.artists";
+    private static final String EXTRA_TWO_PANE = "two_pane";
 
     private ListView mListView;
     private ArtistsArrayAdapter mArtistsAdapter;
     private List<Artist> mArtists;
     private ProgressBar mProgressBar;
     private OnArtistSelectedListener mCallback;
-
+    private boolean mTwoPane;
 
     public ArtistsFragment() { }
 
 
     // newInstance() method instantiates a fragment with an added args bundle
-    public static ArtistsFragment newInstance(List<Artist> artists) {
+    public static ArtistsFragment newInstance(List<Artist> artists, boolean twoPane) {
         // create a bundle, add the photo object
         Bundle args = new Bundle();
         args.putParcelableArrayList(EXTRA_ARTIST_RESULTS,
                 (ArrayList<? extends Parcelable>) artists);
+        args.putBoolean(EXTRA_TWO_PANE, twoPane);
 
         // instantiate a new fragment and add the bundle
         ArtistsFragment fragment = new ArtistsFragment();
@@ -97,8 +100,11 @@ public class ArtistsFragment extends BaseFragment{
 
         // retrieve and args passed to the fragment and populate the tracks array list
         Bundle args = getArguments();
-        if(args != null)
+        if(args != null) {
             mArtists = args.getParcelableArrayList(EXTRA_ARTIST_RESULTS);
+            mTwoPane = args.getBoolean(EXTRA_TWO_PANE);
+        }
+
 
     }
 
@@ -111,6 +117,17 @@ public class ArtistsFragment extends BaseFragment{
         mListView = (ListView) view.findViewById(R.id.list_view_item_container);
         mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
         mProgressBar.setVisibility(View.GONE);
+
+
+        ActionBar toolbar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if(toolbar != null) {
+            if(!mTwoPane) {
+                // reverse changes implemented by Tracks fragment
+                toolbar.setDisplayHomeAsUpEnabled(false); // display home icon
+                toolbar.setTitle(R.string.app_name);
+                toolbar.setSubtitle("");
+            }
+        }
 
 
         // register item click listener - execute Top-Ten MyTrack download

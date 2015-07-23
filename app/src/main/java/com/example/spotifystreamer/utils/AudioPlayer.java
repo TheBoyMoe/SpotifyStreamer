@@ -16,6 +16,7 @@ import java.io.IOException;
  * http://developer.android.com/reference/android/media/MediaPlayer.html
  * http://developer.android.com/guide/topics/media/mediaplayer.html
  *
+ * NOT CURRENTLY BEING USED
  */
 
 public class AudioPlayer implements MediaPlayer.OnPreparedListener{

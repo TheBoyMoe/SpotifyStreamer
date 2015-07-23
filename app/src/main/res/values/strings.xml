@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Spotify Streamer</string>
     <string name="action_settings">Settings</string>
-    <string name="top_ten_tracks">Top Tracks</string>
+    <string name="top_ten_tracks">Top 10 Tracks</string>
     <string name="pref_results_returned_default">20</string>
     <string name="pref_country_code_default">US</string>
     <string name="pref_country_code_title">Country Code</string>
