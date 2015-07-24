@@ -179,9 +179,6 @@ public class MainActivity extends BaseActivity
         // close the search menu item
         mSearchMenuItem.collapseActionView();
 
-        // clear the artist array list, so you're not continuously adding to it
-        mArtists.clear();
-
         // save the search query to the RecentSuggestionsProvider
         sSearchRecentSuggestions = new SearchRecentSuggestions(MainActivity.this,
                 QuerySuggestionProvider.AUTHORITY, QuerySuggestionProvider.MODE);
@@ -196,10 +193,15 @@ public class MainActivity extends BaseActivity
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
                         if (L) Log.i(LOG_TAG, "Search for query: " + query
                                 + ", returned records: " + artistsPager.artists.total);
 
                         if (artistsPager.artists.total > 0) {
+
+                            // clear the artist array list, so you're not continuously adding to it
+                            mArtists.clear();
+
                             // retrieve a list of artist objects
                             List<kaaes.spotify.webapi.android.models.Artist> artistList =
                                     artistsPager.artists.items;
@@ -230,11 +232,14 @@ public class MainActivity extends BaseActivity
                             }
 
                             // instantiate the ArtistsFragment
+                            if(mTwoPane)
+                                clearTracksFragment();
                             addArtistFragment();
 
                         } else {
                             // No results found, http status code returned 200
                             Utils.showToast(MainActivity.this, "No results found for " + query);
+                            resetActionBar();
                         }
                     }
                 });
@@ -254,18 +259,13 @@ public class MainActivity extends BaseActivity
                             // failure due to network problem
                             Utils.showToast(MainActivity.this, "Network error, check connection");
                         }
-
+                        resetActionBar();
                     }
                 });
 
             }
 
         });
-
-        // on tablets, remove the tracks fragment & artist name
-        // whether or not the search succeeds
-        if(mTwoPane)
-            clearTabletUI();
 
         return true;
     }
@@ -336,10 +336,6 @@ public class MainActivity extends BaseActivity
     @Override
     public void onArtistSelected(final String artistName, final String artistId) {
 
-        // clear the results of the previous download
-        if(mTracks != null)
-            mTracks.clear();
-
         // download the artists top ten tracks using SpotifyWebWrapper in a bkgd thread
         mSpotifyService.getArtistTopTrack(artistId, mOptions, new Callback<Tracks>() {
 
@@ -350,6 +346,10 @@ public class MainActivity extends BaseActivity
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        // clear the results of the previous download
+                        if(mTracks != null)
+                            mTracks.clear();
+
                         List<Track> list = tracks.tracks;
                         if (L) Log.d(LOG_TAG, "Number of returned results: " + list.size());
                         for (int i = 0; i < list.size(); i++) {
@@ -390,7 +390,7 @@ public class MainActivity extends BaseActivity
                         } else {
                             if (L) Log.i(LOG_TAG, "No tracks found, array size: " + mTracks.size());
                             Utils.showToast(MainActivity.this, "Track list not available");
-                            if(mTwoPane)
+                            if (mTwoPane)
                                 clearTracksFragment();
                         }
 
@@ -407,7 +407,7 @@ public class MainActivity extends BaseActivity
                     public void run() {
                         Log.d(LOG_TAG, "Error message: " + error.getUrl());
                         Utils.showToast(MainActivity.this,
-                                "Track list not available for selected country");
+                                "Track list not available, check connection and country code");
                     }
                 });
             }
@@ -458,28 +458,23 @@ public class MainActivity extends BaseActivity
     }
 
 
-    private void clearTabletUI() {
-
-        // clear the actionbar title & subtitle
-        ActionBar toolbar = getSupportActionBar();
-        if(toolbar != null) {
-            toolbar.setTitle(R.string.app_name);
-            toolbar.setSubtitle("");
-        }
-
-        // clear the tracks fragment
-        TracksFragment blank = new TracksFragment();
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.tracks_fragment_container, blank);
-        ft.commit();
-    }
-
-
     private void clearTracksFragment() {
         TracksFragment blankFragment = new TracksFragment();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.tracks_fragment_container, blankFragment);
         ft.commit();
     }
+
+
+    private void resetActionBar() {
+        // clear the actionbar title & subtitle
+        ActionBar toolbar = getSupportActionBar();
+        if(toolbar != null) {
+            toolbar.setTitle(R.string.app_name);
+            toolbar.setSubtitle("");
+        }
+    }
+
+
 
 }

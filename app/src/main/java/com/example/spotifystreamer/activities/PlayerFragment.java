@@ -17,8 +17,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.spotifystreamer.R;
-import com.example.spotifystreamer.model.MyTrack;
 import com.example.spotifystreamer.base.BaseFragment;
+import com.example.spotifystreamer.model.MyTrack;
+import com.example.spotifystreamer.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -325,6 +326,14 @@ public class PlayerFragment extends BaseFragment implements MediaPlayer.OnPrepar
     //////////////////////////////////////////////////////////////////////////////////////////
 
     public void play(final String url) {
+
+        // check network connectivity
+        if(!Utils.isConnected(getActivity())) {
+            Log.d(LOG_TAG, "No network connectivity");
+            Utils.showToast(getActivity(), "Check network connection");
+            getActivity().finish();
+            return;
+        }
 
         // ensure the is only one MediaPlayer instance running
         stop();

@@ -3,9 +3,16 @@ package com.example.spotifystreamer.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+/**
+ * Network connectivity method:
+ * http://developer.android.com/training/monitoring-device-state/connectivity-monitoring.html#DetermineConnection
+ */
 
 public class Utils {
 
@@ -29,6 +36,18 @@ public class Utils {
         InputMethodManager mgr =
                 (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         mgr.hideSoftInputFromWindow(windowToken, 0);
+    }
+
+
+    // check network connectivity, in case of drop offs
+    public static boolean isConnected(Context context) {
+
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
 

@@ -137,8 +137,8 @@ public class ArtistsFragment extends BaseFragment{
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
 
-                if(mTwoPane)
-                    view.setSelected(true);
+//                if(mTwoPane)
+//                    view.setSelected(true);
 
                 // retrieve id & name of the particular artist &
                 // use the callback to pass up to the activity

@@ -13,6 +13,6 @@
     <dimen name="dimen_xxlarge">56dp</dimen>
 
     <!-- image sizes -->
-    <dimen name="dimen_thumbnail">120dp</dimen>
+    <dimen name="dimen_thumbnail">100dp</dimen>
 
 </resources>

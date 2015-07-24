@@ -87,8 +87,10 @@ public class TracksFragment extends BaseFragment {
         mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
         mProgressBar.setVisibility(View.GONE);
 
-        if(mTwoPane && mTrackList.size() > 0)
-            view.setBackgroundResource(R.color.applicationAccent);
+//        if(mTwoPane && mTrackList.size() > 0){
+//             view.setBackgroundResource(R.color.applicationAccent);
+//        }
+
 
         if(mTrackList != null) {
             Log.d(LOG_TAG, "Track list size " + mTrackList.size());
