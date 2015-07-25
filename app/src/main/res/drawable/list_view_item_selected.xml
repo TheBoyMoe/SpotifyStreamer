@@ -10,7 +10,7 @@
 
     <!-- default color -->
     <item
-        android:drawable="@color/applicationSecondaryColor"/>
+        android:drawable="@color/applicationPrimaryColorDark"/>
 
 
 </selector>

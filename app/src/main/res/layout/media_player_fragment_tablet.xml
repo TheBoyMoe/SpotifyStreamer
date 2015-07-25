@@ -95,10 +95,11 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/dimen_large"
-        android:paddingRight="@dimen/dimen_large">
+        android:paddingLeft="@dimen/dimen_normal"
+        android:paddingRight="@dimen/dimen_normal">
 
 
+        <!-- SeekBar -->
         <LinearLayout
             android:orientation="horizontal"
             android:paddingTop="@dimen/dimen_medium"
@@ -108,7 +109,8 @@
 
             <TextView
                 android:id="@+id/text_view_timer"
-                android:paddingRight="@dimen/dimen_xsmall"
+                android:paddingLeft="@dimen/dimen_small"
+                android:textSize="18sp"
                 android:layout_gravity="center_vertical"
                 android:textColor="@color/applicationPrimaryTextColor"
                 android:layout_width="wrap_content"
@@ -125,7 +127,8 @@
             <TextView
                 android:id="@+id/text_view_duration"
                 android:layout_gravity="center_vertical"
-                android:paddingLeft="@dimen/dimen_xsmall"
+                android:textSize="18sp"
+                android:paddingRight="@dimen/dimen_small"
                 android:textColor="@color/applicationPrimaryTextColor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -133,6 +136,7 @@
         </LinearLayout>
 
 
+        <!-- Media Player Controls -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

@@ -2,7 +2,6 @@ package com.example.spotifystreamer.activities;
 
 
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -23,9 +22,9 @@ public class PlayerActivity extends AppCompatActivity {
         Configuration config = getResources().getConfiguration();
 
         // target devices < 600dp in width, lock the device in portrait mode
-        if(config.smallestScreenWidthDp < 600) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
+//        if(config.smallestScreenWidthDp < 600) {
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        }
 
         // check if this is the first time in
         if(savedInstanceState == null) {

@@ -3,7 +3,7 @@
 
     <color name="applicationPrimaryColor">@color/md_grey_900</color>
     <color name="applicationPrimaryColorDark">@color/md_black_1000</color>
-    <color name="applicationSecondaryColor">@color/md_black_1000</color>
+    <!--<color name="applicationSecondaryColor">@color/md_black_1000</color>-->
     <color name="applicationAccent">@color/md_grey_600</color>
 
     <color name="applicationPrimaryTextColor">@color/md_white_1000</color>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:padding="@dimen/dimen_normal"
+              android:background="@color/applicationPrimaryColorDark"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+
+    <!-- Image layout -->
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+
+        <ImageView
+            android:id="@+id/image_view_album_cover"
+            android:src="@drawable/bw_placeholder"
+            android:scaleType="centerCrop"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+
+        <!-- image overlay -->
+        <LinearLayout
+            android:layout_alignParentTop="true"
+            android:orientation="horizontal"
+            android:background="@drawable/image_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+
+        <!-- ProgressBar - indicate track loading -->
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="@dimen/dimen_xxlarge"
+            android:layout_height="@dimen/dimen_xxlarge"
+            android:layout_marginTop="@dimen/dimen_large"
+            android:layout_centerInParent="true"
+            style="?android:progressBarStyleLarge"/>
+
+
+        <TextView
+            android:id="@+id/text_view_album_title"
+            android:gravity="center_horizontal"
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:layout_alignParentBottom="true"
+            android:textSize="16sp"
+            android:paddingLeft="@dimen/dimen_small"
+            android:paddingRight="@dimen/dimen_small"
+            android:paddingBottom="@dimen/dimen_normal"
+            android:textColor="@color/applicationPrimaryTextColor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+
+
+    <!-- Track details & Controls -->
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:paddingLeft="@dimen/dimen_normal"
+        android:paddingRight="@dimen/dimen_normal"
+        android:layout_height="match_parent">
+
+
+        <!-- Track details -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_alignParentTop="true"
+            android:paddingLeft="@dimen/dimen_small"
+            android:paddingRight="@dimen/dimen_small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <TextView
+                android:id="@+id/text_view_track_title"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:paddingBottom="@dimen/dimen_small"
+                android:textColor="@color/applicationPrimaryTextColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"/>
+
+
+            <TextView
+                android:id="@+id/text_view_artist_name"
+                android:gravity="center_horizontal"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:textColor="@color/applicationPrimaryTextColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+        </LinearLayout>
+
+
+        <!-- Controller layout -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/dimen_normal"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical">
+
+
+            <!-- Seekbar, timer & duration -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/dimen_normal"
+                android:paddingLeft="@dimen/dimen_small"
+                android:paddingRight="@dimen/dimen_small"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/text_view_timer"
+                    android:paddingRight="@dimen/dimen_xsmall"
+                    android:layout_gravity="center_vertical"
+                    android:textSize="16sp"
+                    android:textColor="@color/applicationPrimaryTextColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+
+                <SeekBar
+                    android:id="@+id/seek_bar"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"/>
+
+
+                <TextView
+                    android:id="@+id/text_view_duration"
+                    android:layout_gravity="center_vertical"
+                    android:paddingLeft="@dimen/dimen_xsmall"
+                    android:textSize="16sp"
+                    android:textColor="@color/applicationPrimaryTextColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+
+            <!--  player controls -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageButton
+                    android:id="@+id/image_button_prev_track"
+                    android:background="@null"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+
+                <ImageButton
+                    android:id="@+id/image_button_play_pause"
+                    android:background="@null"
+                    android:layout_centerInParent="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+
+                <ImageButton
+                    android:id="@+id/image_button_next_track"
+                    android:background="@null"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </RelativeLayout>
+
+
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+
+
+</LinearLayout>

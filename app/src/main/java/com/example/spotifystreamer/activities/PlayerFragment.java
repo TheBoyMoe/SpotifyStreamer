@@ -56,6 +56,7 @@ import java.util.List;
 
 public class PlayerFragment extends BaseFragment implements MediaPlayer.OnPreparedListener{
 
+    // String constants
     private static final String EXTRA_TRACK_RESULTS = "com.example.spotifystreamer.activities.tracks";
     private static final String EXTRA_TRACK_SELECTION = "com.example.spotifystreamer.activities.selection";
     private static final String EXTRA_CURRENT_TRACK = "current_track";
@@ -65,6 +66,7 @@ public class PlayerFragment extends BaseFragment implements MediaPlayer.OnPrepar
     private static final String LOG_TAG = PlayerFragment.class.getSimpleName();
     private final boolean L = false;
 
+    // member variables
     private ImageButton mPlayPauseButton;
     private ImageButton mPrevButton;
     private ImageButton mNextButton;
@@ -154,12 +156,18 @@ public class PlayerFragment extends BaseFragment implements MediaPlayer.OnPrepar
         // set the media player layout for the appropriate size
         Configuration config = getResources().getConfiguration();
         View view;
+
         if(config.smallestScreenWidthDp >= 600)
             // fragment layout for tablets
-            view = inflater.inflate(R.layout.media_player_fragment_large, container, false);
-        else
-            // fragment layout for phones
-            view = inflater.inflate(R.layout.media_player_fragment, container, false);
+            view = inflater.inflate(R.layout.media_player_fragment_tablet, container, false);
+        else {
+            // fragment layout for phones - portrait orientation
+            if((config.orientation == config.ORIENTATION_PORTRAIT))
+                view = inflater.inflate(R.layout.media_player_fragment_phone_portrait, container, false);
+            else
+                // landscape orientation
+                view = inflater.inflate(R.layout.media_player_fragment_phone_landscape, container, false);
+        }
 
 
         // create references to each of the layout elements of interest
