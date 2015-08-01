@@ -1,5 +1,6 @@
 package com.example.spotifystreamer.activities;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.AudioManager;
@@ -8,6 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -15,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.spotifystreamer.R;
 import com.example.spotifystreamer.base.BaseFragment;
@@ -96,6 +101,9 @@ public class PlayerFragment extends BaseFragment implements MediaPlayer.OnPrepar
         // used to update the SeekBar at 1 sec intervals
         mSeekHandler = new Handler();
         mTrackList = new ArrayList<>();
+
+        // add share action item to the menu
+        setHasOptionsMenu(true);
 
     }
 
@@ -305,19 +313,6 @@ public class PlayerFragment extends BaseFragment implements MediaPlayer.OnPrepar
     }
 
 
-    private void updatePlayer() {
-
-        // update the track selected & ensure it starts from the beginning
-        mCurrentTrack = mTrackList.get(mCurrentSelection);
-        mCurrentPosition = 0;
-
-        // update view elements with new track info & start track
-        initializePlayerViews(mCurrentTrack);
-        initializeAlbumView(mCurrentTrack);
-        play(mCurrentTrack.getPreviewUrl());
-
-    }
-
 
     @Override
     public void onDestroy() {
@@ -327,6 +322,32 @@ public class PlayerFragment extends BaseFragment implements MediaPlayer.OnPrepar
     }
 
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        inflater.inflate(R.menu.menu_share, menu);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.menu_item_share:
+                // create a share intent, share the current track's url
+                Intent shareIntent = Utils.getShareIntent(mCurrentTrack);
+                try {
+                    startActivity(Intent.createChooser(shareIntent, "Share track link via:"));
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(getActivity(), "No suitable application found", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
 
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -545,6 +566,20 @@ public class PlayerFragment extends BaseFragment implements MediaPlayer.OnPrepar
                 .placeholder(R.drawable.dark_placeholder)
                 .error(R.drawable.dark_placeholder)
                 .into(mAlbumCover);
+    }
+
+
+    private void updatePlayer() {
+
+        // update the track selected & ensure it starts from the beginning
+        mCurrentTrack = mTrackList.get(mCurrentSelection);
+        mCurrentPosition = 0;
+
+        // update view elements with new track info & start track
+        initializePlayerViews(mCurrentTrack);
+        initializeAlbumView(mCurrentTrack);
+        play(mCurrentTrack.getPreviewUrl());
+
     }
 
 

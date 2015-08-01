@@ -16,4 +16,5 @@
     <string name="track_media_player_title">Media Player</string>
     <string name="track_timer_initial_value">0:0</string>
     <string name="player_activity_title"/>
+    <string name="action_share_track">Share track</string>
 </resources>
